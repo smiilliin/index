@@ -11,6 +11,7 @@ import cookies from "next-cookies";
 import ReCAPTCHA from "react-google-recaptcha";
 import { env } from "@/env";
 import React from "react";
+import Message from "@/components/message";
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const recaptcha = React.useRef<ReCAPTCHA>();
@@ -52,6 +53,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
       </Head>
       <main>
         <CenterContainer nav={true}>
+          <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
             <Input style={{ width: "100%", height: "40px" }} placeholder="ID" name="id" type="text" />
             <Input style={{ width: "100%", height: "40px" }} placeholder="PASSWORD" name="password" type="password" />
