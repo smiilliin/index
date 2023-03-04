@@ -36,7 +36,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
 
     try {
       const refreshToken: string = await authAPI.signup(id, password, g_response as string);
-      localStorage.setItem("access-token", await authAPI.getAccessToken(refreshToken));
+      sessionStorage.setItem("access-token", await authAPI.getAccessToken(refreshToken));
       window.location.href = "/";
     } catch (err: any) {
       setMessage(err.message);

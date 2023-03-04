@@ -42,24 +42,31 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
       setAuthAPI(new AuthAPI(lang, authHost));
-
-      let accessToken = localStorage.getItem("access-token");
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
+      let accessToken = sessionStorage.getItem("access-token");
 
       if (!refreshToken) return;
       if (!authAPI) return;
 
-      if (!accessToken) accessToken = await authAPI.getAccessToken(refreshToken);
+      if (!accessToken) {
+        accessToken = await authAPI.getAccessToken(refreshToken);
+        sessionStorage.setItem("access-token", accessToken);
+      }
 
       setTokenKeeper(new TokenKeeper(authAPI, refreshToken, accessToken));
-
-      if (!tokenKeeper) return;
-      tokenKeeper.watchAccessToken = (accessToken: string) => {
-        localStorage.setItem("access-token", accessToken);
-      };
-
-      await tokenKeeper.setTokenInterval();
     })();
-  }, []);
+  }, [authAPI]);
+  useEffect(() => {
+    if (!tokenKeeper) return;
+    tokenKeeper.watchAccessToken = (accessToken: string) => {
+      sessionStorage.setItem("access-token", accessToken);
+    };
+
+    tokenKeeper.setTokenInterval();
+  }, [tokenKeeper]);
 
   return (
     <>
