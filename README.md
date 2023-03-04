@@ -12,6 +12,7 @@ npm install
 
 ```
 RECAPTCHA_PUBLIC_KEY=
+AUTH_HOST=https://auth.smiilliin.site
 ```
 
 ## Run
