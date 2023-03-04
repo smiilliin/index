@@ -1,11 +1,11 @@
-import { env } from "@/env";
+import { authHost } from "@/static";
 import { useEffect } from "react";
 
 export default function Logout() {
   useEffect(() => {
     sessionStorage.removeItem("access-token");
 
-    fetch(`${env.auth_host}/logout`, {
+    fetch(`${authHost}/logout`, {
       method: "GET",
       credentials: "include",
     }).then((res) => {

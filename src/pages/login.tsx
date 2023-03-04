@@ -8,7 +8,7 @@ import { AuthAPI } from "@smiilliin/auth-api";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Message from "@/components/message";
-import { env } from "@/env";
+import { authHost } from "@/static";
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
@@ -18,7 +18,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, env.auth_host));
+    setAuthAPI(new AuthAPI(lang, authHost));
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {

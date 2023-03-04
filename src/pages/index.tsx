@@ -1,8 +1,6 @@
 import Head from "next/head";
 import { MouseEvent, ReactElement, useEffect, useState } from "react";
 import styled from "styled-components";
-// import styles from '@/styles/Home.module.css'
-import Container from "@/components/container";
 import CenterContainer from "@/components/centercontainer";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
@@ -10,9 +8,7 @@ import Navbar from "@/components/navbar";
 import { Button } from "@/components/button";
 import { jwtParser } from "@/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
-import { env } from "@/env";
-
-// const [userName, setUserName] = useState("");
+import { authHost } from "@/static";
 
 const Icon = () => {
   return <img src="smile.svg" width="150px" alt="icon" />;
@@ -41,7 +37,7 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
-      setAuthAPI(new AuthAPI(lang, env.auth_host));
+      setAuthAPI(new AuthAPI(lang, authHost));
     })();
   }, []);
   useEffect(() => {

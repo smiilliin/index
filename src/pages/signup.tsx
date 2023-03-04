@@ -8,9 +8,9 @@ import { AuthAPI } from "@smiilliin/auth-api";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import ReCAPTCHA from "react-google-recaptcha";
-import { env } from "@/env";
 import React from "react";
 import Message from "@/components/message";
+import { authHost, recaptcchaPublicKey as recaptchaPublicKey } from "@/static";
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const recaptcha = React.useRef<ReCAPTCHA>();
@@ -21,7 +21,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, env.auth_host));
+    setAuthAPI(new AuthAPI(lang, authHost));
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -58,7 +58,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
             <Input style={{ width: "100%", height: "40px" }} placeholder="PASSWORD" name="password" type="password" />
             <ReCAPTCHA
               theme="dark"
-              sitekey={env.recaptcha_public_key}
+              sitekey={recaptchaPublicKey}
               ref={recaptcha as React.RefObject<ReCAPTCHA>}
             ></ReCAPTCHA>
             <ButtonInput style={{ width: "100%", height: "40px" }} type="submit" value="SIGNUP" />
