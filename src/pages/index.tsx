@@ -35,24 +35,24 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
     id = jwtParser(refreshToken)?.id;
   }
 
-  // const [id, setID] = useState();
-
-  let authAPI: AuthAPI;
-  let tokenKeeper: TokenKeeper;
+  const [authAPI, setAuthAPI] = useState<AuthAPI>();
+  const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
 
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
-      authAPI = new AuthAPI(lang, authHost);
+      setAuthAPI(new AuthAPI(lang, authHost));
 
       let accessToken = localStorage.getItem("access-token");
 
       if (!refreshToken) return;
+      if (!authAPI) return;
 
       if (!accessToken) accessToken = await authAPI.getAccessToken(refreshToken);
 
-      tokenKeeper = new TokenKeeper(authAPI, refreshToken, accessToken);
+      setTokenKeeper(new TokenKeeper(authAPI, refreshToken, accessToken));
 
+      if (!tokenKeeper) return;
       tokenKeeper.watchAccessToken = (accessToken: string) => {
         localStorage.setItem("access-token", accessToken);
       };
