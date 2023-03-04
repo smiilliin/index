@@ -10,7 +10,7 @@ import cookies from "next-cookies";
 import ReCAPTCHA from "react-google-recaptcha";
 import React from "react";
 import Message from "@/components/message";
-import { authHost, recaptcchaPublicKey as recaptchaPublicKey } from "@/static";
+import { authHost, recaptchaPublicKey } from "@/static";
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const recaptcha = React.useRef<ReCAPTCHA>();
