@@ -5,10 +5,10 @@ import { ButtonInput } from "@/components/button";
 import Form from "@/components/form";
 import Input from "@/components/input";
 import { AuthAPI } from "@smiilliin/auth-api";
-import { authHost } from "@/static";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Message from "@/components/message";
+import { env } from "@/env";
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
@@ -18,7 +18,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, authHost));
+    setAuthAPI(new AuthAPI(lang, env.auth_host));
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {

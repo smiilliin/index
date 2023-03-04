@@ -10,7 +10,7 @@ import Navbar from "@/components/navbar";
 import { Button } from "@/components/button";
 import { jwtParser } from "@/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
-import { authHost } from "@/static";
+import { env } from "@/env";
 
 // const [userName, setUserName] = useState("");
 
@@ -41,7 +41,7 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
-      setAuthAPI(new AuthAPI(lang, authHost));
+      setAuthAPI(new AuthAPI(lang, env.auth_host));
     })();
   }, []);
   useEffect(() => {
