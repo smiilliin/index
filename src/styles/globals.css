@@ -1,0 +1,30 @@
+:root {
+  --title-color: #beffff;
+  --font-color: #ffffff;
+  --font-second-color: #c3beb6;
+  --font-third-color: #a49c90;
+  --first-color: #181a1b;
+  --second-color: #292b2e;
+  --third-color: #3b3e40;
+  --nav-size: 40px;
+  --button-width: 100px;
+  --button-margin: 5px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  color: var(--font-color);
+  font-family: sans-serif;
+}
+a {
+  color: var(--font-color);
+}
+input {
+  font-size: 15px;
+}
+
+html {
+  background-color: var(--first-color);
+}
