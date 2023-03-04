@@ -8,13 +8,6 @@ This is the index page of the web
 npm install
 ```
 
-.env
-
-```
-RECAPTCHA_PUBLIC_KEY=
-AUTH_HOST=https://auth.smiilliin.site
-```
-
 ## Run
 
 ```bash
