@@ -8,17 +8,24 @@ import { AuthAPI } from "@smiilliin/auth-api";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Message from "@/components/message";
-import { authHost } from "@/static";
+import { authHost } from "@/front/static";
+import styled from "styled-components";
+
+const Title = styled.h2`
+  color: var(--font-second-color);
+  margin-bottom: 10px;
+`;
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [message, setMessage] = useState("");
+  const inputStyle = { width: "100%", height: "40px" };
 
   useEffect(() => {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, authHost));
+    setAuthAPI(new AuthAPI(lang, "/api"));
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -31,7 +38,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
 
     try {
       const refreshToken: string = await authAPI.login(id, password);
-      sessionStorage.setItem("access-token", await authAPI.getAccessToken(refreshToken));
+      await authAPI.getAccessToken(refreshToken);
       window.location.href = "/";
     } catch (err: any) {
       setMessage(err.message);
@@ -48,11 +55,12 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
       </Head>
       <main>
         <CenterContainer>
+          <Title>LOGIN</Title>
           <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
-            <Input style={{ width: "100%", height: "40px" }} placeholder="ID" name="id" type="text" />
-            <Input style={{ width: "100%", height: "40px" }} placeholder="PASSWORD" name="password" type="password" />
-            <ButtonInput style={{ width: "100%", height: "40px" }} type="submit" value="LOGIN" />
+            <Input style={inputStyle} placeholder="ID" name="id" type="text" />
+            <Input style={inputStyle} placeholder="PASSWORD" name="password" type="password" />
+            <ButtonInput style={inputStyle} type="submit" value="LOGIN" />
           </Form>
         </CenterContainer>
       </main>

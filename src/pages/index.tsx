@@ -5,26 +5,27 @@ import CenterContainer from "@/components/centercontainer";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Navbar from "@/components/navbar";
-import { Button } from "@/components/button";
-import { jwtParser } from "@/jwtParser";
+import { jwtParser } from "@/front/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
-import { authHost } from "@/static";
+import { authHost } from "@/front/static";
+import smile from "@/front/smile.svg";
+import StringsManager, { IStrings } from "@/front/stringsManager";
 
-const Icon = () => {
-  return <img src="smile.svg" width="150px" alt="icon" />;
-};
 const BigTitle = styled.h1`
   color: var(--title-color);
 `;
 const SmallTitle = styled.h2`
   color: var(--font-second-color);
 `;
-const Buttons = styled.div`
+const Icons = styled.div`
   text-align: center;
-  padding-top: 10px;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 `;
 
-export default function Index({ refreshToken }: { refreshToken: string }) {
+export default function Index({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }) {
   let id;
 
   if (refreshToken) {
@@ -34,22 +35,24 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
 
+  const [strings, setStrings] = useState<IStrings>();
+  const stringsManager = new StringsManager(strings, setStrings);
+
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
       setAuthAPI(new AuthAPI(lang, authHost));
+
+      stringsManager.load(lang);
     })();
   }, []);
   useEffect(() => {
     (async () => {
-      let accessToken = sessionStorage.getItem("access-token");
-
       if (!refreshToken) return;
       if (!authAPI) return;
 
       if (!accessToken) {
         accessToken = await authAPI.getAccessToken(refreshToken);
-        sessionStorage.setItem("access-token", accessToken);
       }
 
       setTokenKeeper(new TokenKeeper(authAPI, refreshToken, accessToken));
@@ -67,19 +70,27 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
   return (
     <>
       <Head>
-        <title>Smile Developer</title>
+        <title>Smile</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Navbar id={id}></Navbar>
-        <CenterContainer nav={true}>
-          <Icon></Icon>
-          <BigTitle>Smile Developer</BigTitle>
-          <SmallTitle>👋Hi! I'm smile developer!</SmallTitle>
-          <Buttons>
-            <Button href="https://github.com/smiilliin">Github</Button>
-          </Buttons>
+        <CenterContainer>
+          <Navbar id={id}></Navbar>
+          <img src={smile.src} width="200px" alt="icon"></img>
+          <BigTitle>👋 SMIILLIIN - Smile</BigTitle>
+          <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
+          <Icons>
+            <a href="https://github.com/smiilliin">
+              <img src="https://github.githubassets.com/favicons/favicon-dark.svg" width="30px" />
+            </a>
+            <a href="https://instagram.com/smiilliin">
+              <img src="https://instagram.com/favicon.ico" width="30px" />
+            </a>
+            <a href="mailto://smiilliindeveloper@gamil.com">
+              <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" width="30px" />
+            </a>
+          </Icons>
         </CenterContainer>
       </main>
     </>
@@ -87,10 +98,11 @@ export default function Index({ refreshToken }: { refreshToken: string }) {
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-  const { "refresh-token": refreshToken } = cookies(context);
+  const { "access-token": accessToken, "refresh-token": refreshToken } = cookies(context);
 
   return {
     props: {
+      accessToken: accessToken ? accessToken : null,
       refreshToken: refreshToken ? refreshToken : null,
     },
   };

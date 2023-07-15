@@ -5,7 +5,7 @@ const buttonStyle = `
   width: var(--button-width);
   height: 25px;
   cursor: pointer;
-  background-color: var(--third-color);
+  background-color: #121414;
   border: none;
   text-decoration: none;
   text-align: center;

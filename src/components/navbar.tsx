@@ -3,25 +3,29 @@ import styled from "styled-components";
 import { Button } from "./button";
 
 const NavBar = styled.div`
-  position: sticky;
-  top: 0px;
-  left: 0px;
-  padding-top: 8px;
-  background-color: var(--second-color);
+  // padding-top: 8px;
+  background-color: #121414;
   width: 100vw;
   height: 40px;
   padding-left: 10px;
   display: grid;
+  position: absolute;
+  left: 0;
+  top: 0;
   grid-template-columns: 1fr calc((var(--button-width) + var(--button-margin) * 2) * 2);
+  align-items: center;
 `;
 const Buttons = styled.div`
   text-align: right;
+`;
+const Id = styled.span`
+  text-align: left;
 `;
 
 export default ({ id }: { id?: string }) => {
   return (
     <NavBar>
-      {id ? <p>{id}</p> : <div></div>}
+      <Id>{id}</Id>
 
       <Buttons>
         {!id && (

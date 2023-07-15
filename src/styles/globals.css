@@ -1,12 +1,10 @@
 :root {
-  --title-color: #beffff;
-  --font-color: #ffffff;
+  --title-color: white;
+  --font-color: white;
   --font-second-color: #c3beb6;
   --font-third-color: #a49c90;
   --first-color: #181a1b;
-  --second-color: #292b2e;
-  --third-color: #3b3e40;
-  --nav-size: 40px;
+  --second-color: #2d2d2d;
   --button-width: 100px;
   --button-margin: 5px;
 }
@@ -27,4 +25,9 @@ input {
 
 html {
   background-color: var(--first-color);
+}
+
+.asdf {
+  height: 100vh;
+  height: -webkit-fill-available;
 }

@@ -10,18 +10,30 @@ import cookies from "next-cookies";
 import ReCAPTCHA from "react-google-recaptcha";
 import React from "react";
 import Message from "@/components/message";
-import { authHost, recaptchaPublicKey } from "@/static";
+import { authHost, recaptchaPublicKey } from "@/front/static";
+import styled from "styled-components";
+import StringsManager, { IStrings } from "@/front/stringsManager";
+
+const Title = styled.h2`
+  color: var(--font-second-color);
+  margin-bottom: 10px;
+`;
 
 export default function Login({ refreshToken }: { refreshToken?: string }) {
-  const recaptcha = React.useRef<ReCAPTCHA>();
+  const recaptcha = React.useRef<ReCAPTCHA>(null);
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string | undefined>();
+  const inputStyle = { width: "100%", height: "40px" };
+
+  const [strings, setStrings] = useState<IStrings>();
+  const stringsManager = new StringsManager(strings, setStrings);
 
   useEffect(() => {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
     setAuthAPI(new AuthAPI(lang, authHost));
+    stringsManager.load(lang);
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -31,14 +43,21 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
     const formData = new FormData(event.target as HTMLFormElement);
     const id = formData.get("id") as string;
     const password = formData.get("password") as string;
+    const passwordCheck = formData.get("passwordCheck") as string;
     const g_response = recaptcha.current?.getValue();
+
+    if (password !== passwordCheck) {
+      setMessage(stringsManager.getString("PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS"));
+      return;
+    }
 
     try {
       const refreshToken: string = await authAPI.signup(id, password, g_response as string);
-      sessionStorage.setItem("access-token", await authAPI.getAccessToken(refreshToken));
+      await authAPI.getAccessToken(refreshToken);
       window.location.href = "/";
     } catch (err: any) {
       setMessage(err.message);
+      recaptcha.current?.reset();
       console.error(err);
     }
   };
@@ -51,17 +70,15 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <CenterContainer nav={true}>
+        <CenterContainer>
+          <Title>SIGNUP</Title>
           <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
-            <Input style={{ width: "100%", height: "40px" }} placeholder="ID" name="id" type="text" />
-            <Input style={{ width: "100%", height: "40px" }} placeholder="PASSWORD" name="password" type="password" />
-            <ReCAPTCHA
-              theme="dark"
-              sitekey={recaptchaPublicKey}
-              ref={recaptcha as React.RefObject<ReCAPTCHA>}
-            ></ReCAPTCHA>
-            <ButtonInput style={{ width: "100%", height: "40px" }} type="submit" value="SIGNUP" />
+            <Input style={inputStyle} placeholder="ID" name="id" type="text" />
+            <Input style={inputStyle} placeholder="PASSWORD" name="password" type="password" />
+            <Input style={inputStyle} placeholder="PASSWORD CHECK" name="passwordCheck" type="password" />
+            <ReCAPTCHA theme="dark" sitekey={recaptchaPublicKey} ref={recaptcha}></ReCAPTCHA>
+            <ButtonInput style={inputStyle} type="submit" value="SIGNUP" />
           </Form>
         </CenterContainer>
       </main>
