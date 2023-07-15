@@ -10,7 +10,7 @@ import cookies from "next-cookies";
 import ReCAPTCHA from "react-google-recaptcha";
 import React from "react";
 import Message from "@/components/message";
-import { authHost, recaptchaPublicKey } from "@/front/static";
+import { recaptchaPublicKey } from "@/front/static";
 import styled from "styled-components";
 import StringsManager, { IStrings } from "@/front/stringsManager";
 
@@ -32,7 +32,7 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
     if (refreshToken) window.location.href = "/";
 
     const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, authHost));
+    setAuthAPI(new AuthAPI(lang, "/api"));
     stringsManager.load(lang);
   }, []);
 
