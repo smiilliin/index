@@ -18,7 +18,14 @@ interface IUserQuery {
   password: Buffer;
 }
 
-export default (req: NextApiRequest, res: NextApiResponse<IError | ITokenData>) => {
+const sleep = async (ms: number) => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), ms);
+  });
+};
+
+export default async (req: NextApiRequest, res: NextApiResponse<IError | ITokenData>) => {
+  await sleep(1000);
   const { id, password } = req.body;
 
   if (!idRegex(id) || !passwordRegex(password)) {

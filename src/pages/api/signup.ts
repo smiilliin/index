@@ -13,7 +13,13 @@ interface ITokenData {
   "refresh-token": string;
 }
 
+const sleep = async (ms: number) => {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), ms);
+  });
+};
 export default async (req: NextApiRequest, res: NextApiResponse<IError | ITokenData>) => {
+  await sleep(1000);
   const { id, password, g_response } = req.body;
   if (!(await checkRecaptcha(g_response))) {
     return res.status(400).send({
