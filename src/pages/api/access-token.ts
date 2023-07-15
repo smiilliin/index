@@ -2,9 +2,10 @@ import { env } from "@/back/env";
 import { generation } from "@/back/static";
 import { serialize } from "cookie";
 import { NextApiRequest, NextApiResponse } from "next";
+import en from "@/../public/api/strings/en.json";
 
 interface IError {
-  reason: string;
+  reason: keyof typeof en;
 }
 interface ITokenData {
   "access-token": string;

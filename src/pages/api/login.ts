@@ -3,9 +3,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
 import { env } from "@/back/env";
 import { serialize } from "cookie";
+import en from "@/../public/api/strings/en.json";
 
 interface IError {
-  reason: string;
+  reason: keyof typeof en;
 }
 interface ITokenData {
   "refresh-token": string;

@@ -1,4 +1,3 @@
-import { generation } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import { env } from "@/back/env";
 import { serialize } from "cookie";
