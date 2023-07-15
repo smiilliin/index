@@ -8,7 +8,6 @@ import { AuthAPI } from "@smiilliin/auth-api";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Message from "@/components/message";
-import { authHost } from "@/front/static";
 import styled from "styled-components";
 
 const Title = styled.h2`

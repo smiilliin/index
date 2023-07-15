@@ -7,7 +7,6 @@ import cookies from "next-cookies";
 import Navbar from "@/components/navbar";
 import { jwtParser } from "@/front/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
-import { authHost } from "@/front/static";
 import smile from "@/front/smile.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
 
@@ -41,7 +40,7 @@ export default function Index({ accessToken, refreshToken }: { accessToken: stri
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
-      setAuthAPI(new AuthAPI(lang, authHost));
+      setAuthAPI(new AuthAPI(lang, "/api"));
 
       stringsManager.load(lang);
     })();
@@ -60,10 +59,6 @@ export default function Index({ accessToken, refreshToken }: { accessToken: stri
   }, [authAPI]);
   useEffect(() => {
     if (!tokenKeeper) return;
-    tokenKeeper.watchAccessToken = (accessToken: string) => {
-      sessionStorage.setItem("access-token", accessToken);
-    };
-
     tokenKeeper.setTokenInterval();
   }, [tokenKeeper]);
 
