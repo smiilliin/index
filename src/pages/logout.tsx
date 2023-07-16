@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function Logout() {
+export default () => {
   useEffect(() => {
     fetch(`/api/logout`, {
       method: "GET",
@@ -9,4 +9,4 @@ export default function Logout() {
       window.location.href = "/";
     });
   }, []);
-}
+};

@@ -15,7 +15,7 @@ const Title = styled.h2`
   margin-bottom: 10px;
 `;
 
-export default function Login({ refreshToken }: { refreshToken?: string }) {
+export default ({ refreshToken }: { refreshToken?: string }) => {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [message, setMessage] = useState("");
   const inputStyle = { width: "100%", height: "40px" };
@@ -65,14 +65,14 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
       </main>
     </>
   );
-}
+};
 
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
 
   return {
     props: {
-      refreshToken: refreshToken ? refreshToken : null,
+      refreshToken: refreshToken,
     },
   };
 }

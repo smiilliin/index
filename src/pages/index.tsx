@@ -31,11 +31,7 @@ export default ({
   accessToken: string | undefined;
   refreshToken: string | undefined;
 }) => {
-  let id;
-
-  if (refreshToken) {
-    id = jwtParser(refreshToken)?.id;
-  }
+  const [id, setID] = useState<string>();
 
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
@@ -43,6 +39,11 @@ export default ({
   const [strings, setStrings] = useState<IStrings>();
   const stringsManager = new StringsManager(strings, setStrings);
 
+  useEffect(() => {
+    if (refreshToken) {
+      setID(jwtParser(refreshToken)?.id);
+    }
+  }, [refreshToken]);
   useEffect(() => {
     (async () => {
       const lang = window.navigator.language.split("-")[0];
@@ -88,7 +89,7 @@ export default ({
             <a href="https://instagram.com/smiilliin">
               <img src="https://instagram.com/favicon.ico" width="30px" />
             </a>
-            <a href="mailto://smiilliindeveloper@gamil.com">
+            <a href="mailto:smiilliindeveloper@gamil.com">
               <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" width="30px" />
             </a>
           </Icons>

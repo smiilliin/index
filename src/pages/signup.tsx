@@ -19,7 +19,7 @@ const Title = styled.h2`
   margin-bottom: 10px;
 `;
 
-export default function Login({ refreshToken }: { refreshToken?: string }) {
+export default ({ refreshToken }: { refreshToken: string | undefined }) => {
   const recaptcha = React.useRef<ReCAPTCHA>(null);
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [message, setMessage] = useState<string | undefined>();
@@ -84,14 +84,14 @@ export default function Login({ refreshToken }: { refreshToken?: string }) {
       </main>
     </>
   );
-}
+};
 
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
 
   return {
     props: {
-      refreshToken: refreshToken ? refreshToken : null,
+      refreshToken: refreshToken,
     },
   };
 }
