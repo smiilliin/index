@@ -24,7 +24,13 @@ const Icons = styled.div`
   gap: 10px;
 `;
 
-export default function Index({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }) {
+export default ({
+  accessToken,
+  refreshToken,
+}: {
+  accessToken: string | undefined;
+  refreshToken: string | undefined;
+}) => {
   let id;
 
   if (refreshToken) {
@@ -90,15 +96,15 @@ export default function Index({ accessToken, refreshToken }: { accessToken: stri
       </main>
     </>
   );
-}
+};
 
 export async function getServerSideProps(context: NextPageContext) {
   const { "access-token": accessToken, "refresh-token": refreshToken } = cookies(context);
 
   return {
     props: {
-      accessToken: accessToken ? accessToken : null,
-      refreshToken: refreshToken ? refreshToken : null,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     },
   };
 }
