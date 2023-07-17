@@ -27,17 +27,20 @@ const Icons = styled.div`
 export default ({
   accessToken,
   refreshToken,
+  language,
+  strings,
 }: {
-  accessToken: string | undefined;
-  refreshToken: string | undefined;
+  accessToken: string | null;
+  refreshToken: string | null;
+  language: string;
+  strings: IStrings;
 }) => {
   const [id, setID] = useState<string>();
 
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
 
-  const [strings, setStrings] = useState<IStrings>();
-  const stringsManager = new StringsManager(strings, setStrings);
+  const stringsManager = new StringsManager(strings);
 
   useEffect(() => {
     if (refreshToken) {
@@ -46,10 +49,10 @@ export default ({
   }, [refreshToken]);
   useEffect(() => {
     (async () => {
-      const lang = window.navigator.language.split("-")[0];
-      setAuthAPI(new AuthAPI(lang, "/api"));
+      const authAPI = new AuthAPI("/api");
 
-      stringsManager.load(lang);
+      await authAPI.load(language);
+      setAuthAPI(authAPI);
     })();
   }, []);
   useEffect(() => {
@@ -84,13 +87,19 @@ export default ({
           <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
           <Icons>
             <a href="https://github.com/smiilliin">
-              <img src="https://github.githubassets.com/favicons/favicon-dark.svg" width="30px" />
+              <img
+                src="https://github.githubassets.com/favicons/favicon-dark.svg"
+                width="30px"
+              />
             </a>
             <a href="https://instagram.com/smiilliin">
               <img src="https://instagram.com/favicon.ico" width="30px" />
             </a>
             <a href="mailto:smiilliindeveloper@gamil.com">
-              <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" width="30px" />
+              <img
+                src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+                width="30px"
+              />
             </a>
           </Icons>
         </CenterContainer>
@@ -98,14 +107,28 @@ export default ({
     </>
   );
 };
+import { languageCache, languageListCache } from "@/front/languageCache";
 
 export async function getServerSideProps(context: NextPageContext) {
-  const { "access-token": accessToken, "refresh-token": refreshToken } = cookies(context);
+  const { "access-token": accessToken, "refresh-token": refreshToken } =
+    cookies(context);
+
+  const language =
+    context.req?.headers["accept-language"]
+      ?.split(";")?.[0]
+      .split(",")?.[0]
+      ?.split("-")?.[0] || "en";
 
   return {
     props: {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      accessToken: accessToken || null,
+      refreshToken: refreshToken || null,
+      language: language,
+      strings: languageCache(
+        languageListCache().findIndex((e) => e === language) !== -1
+          ? language
+          : "en"
+      ),
     },
   };
 }

@@ -1,5 +1,12 @@
 import Head from "next/head";
-import { FormEvent, MouseEvent, ReactElement, useEffect, useRef, useState } from "react";
+import {
+  FormEvent,
+  MouseEvent,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import CenterContainer from "@/components/centercontainer";
 import { ButtonInput } from "@/components/button";
 import Form from "@/components/form";
@@ -15,16 +22,21 @@ const Title = styled.h2`
   margin-bottom: 10px;
 `;
 
-export default ({ refreshToken }: { refreshToken?: string }) => {
+export default ({ refreshToken }: { refreshToken: string | null }) => {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [message, setMessage] = useState("");
   const inputStyle = { width: "100%", height: "40px" };
 
   useEffect(() => {
-    if (refreshToken) window.location.href = "/";
+    (async () => {
+      if (refreshToken) window.location.href = "/";
 
-    const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, "/api"));
+      const lang = window.navigator.language.split("-")[0];
+      const authAPI = new AuthAPI("/api");
+
+      await authAPI.load(lang);
+      setAuthAPI(authAPI);
+    })();
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -58,7 +70,12 @@ export default ({ refreshToken }: { refreshToken?: string }) => {
           <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
             <Input style={inputStyle} placeholder="ID" name="id" type="text" />
-            <Input style={inputStyle} placeholder="PASSWORD" name="password" type="password" />
+            <Input
+              style={inputStyle}
+              placeholder="PASSWORD"
+              name="password"
+              type="password"
+            />
             <ButtonInput style={inputStyle} type="submit" value="LOGIN" />
           </Form>
         </CenterContainer>
@@ -72,7 +89,7 @@ export async function getServerSideProps(context: NextPageContext) {
 
   return {
     props: {
-      refreshToken: refreshToken,
+      refreshToken: refreshToken || null,
     },
   };
 }

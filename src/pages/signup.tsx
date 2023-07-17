@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { FormEvent, MouseEvent, ReactElement, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import CenterContainer from "@/components/centercontainer";
 import { ButtonInput } from "@/components/button";
 import Form from "@/components/form";
@@ -13,27 +13,38 @@ import Message from "@/components/message";
 import { recaptchaPublicKey } from "@/front/static";
 import styled from "styled-components";
 import StringsManager, { IStrings } from "@/front/stringsManager";
+import { languageCache, languageListCache } from "@/front/languageCache";
 
 const Title = styled.h2`
   color: var(--font-second-color);
   margin-bottom: 10px;
 `;
 
-export default ({ refreshToken }: { refreshToken: string | undefined }) => {
+export default ({
+  refreshToken,
+  language,
+  strings,
+}: {
+  refreshToken: string | null;
+  language: string;
+  strings: IStrings;
+}) => {
   const recaptcha = React.useRef<ReCAPTCHA>(null);
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
   const [message, setMessage] = useState<string | undefined>();
   const inputStyle = { width: "100%", height: "40px" };
 
-  const [strings, setStrings] = useState<IStrings>();
-  const stringsManager = new StringsManager(strings, setStrings);
+  const stringsManager = new StringsManager(strings);
 
   useEffect(() => {
-    if (refreshToken) window.location.href = "/";
+    (async () => {
+      if (refreshToken) window.location.href = "/";
 
-    const lang = window.navigator.language.split("-")[0];
-    setAuthAPI(new AuthAPI(lang, "/api"));
-    stringsManager.load(lang);
+      const authAPI = new AuthAPI("/api");
+
+      await authAPI.load(language);
+      setAuthAPI(authAPI);
+    })();
   }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -47,12 +58,18 @@ export default ({ refreshToken }: { refreshToken: string | undefined }) => {
     const g_response = recaptcha.current?.getValue();
 
     if (password !== passwordCheck) {
-      setMessage(stringsManager.getString("PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS"));
+      setMessage(
+        stringsManager.getString("PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS")
+      );
       return;
     }
 
     try {
-      const refreshToken: string = await authAPI.signup(id, password, g_response as string);
+      const refreshToken: string = await authAPI.signup(
+        id,
+        password,
+        g_response as string
+      );
       await authAPI.getAccessToken(refreshToken);
       window.location.href = "/";
     } catch (err: any) {
@@ -75,9 +92,23 @@ export default ({ refreshToken }: { refreshToken: string | undefined }) => {
           <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
             <Input style={inputStyle} placeholder="ID" name="id" type="text" />
-            <Input style={inputStyle} placeholder="PASSWORD" name="password" type="password" />
-            <Input style={inputStyle} placeholder="PASSWORD CHECK" name="passwordCheck" type="password" />
-            <ReCAPTCHA theme="dark" sitekey={recaptchaPublicKey} ref={recaptcha}></ReCAPTCHA>
+            <Input
+              style={inputStyle}
+              placeholder="PASSWORD"
+              name="password"
+              type="password"
+            />
+            <Input
+              style={inputStyle}
+              placeholder="PASSWORD CHECK"
+              name="passwordCheck"
+              type="password"
+            />
+            <ReCAPTCHA
+              theme="dark"
+              sitekey={recaptchaPublicKey}
+              ref={recaptcha}
+            ></ReCAPTCHA>
             <ButtonInput style={inputStyle} type="submit" value="SIGNUP" />
           </Form>
         </CenterContainer>
@@ -89,9 +120,21 @@ export default ({ refreshToken }: { refreshToken: string | undefined }) => {
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
 
+  const language =
+    context.req?.headers["accept-language"]
+      ?.split(";")?.[0]
+      .split(",")?.[0]
+      ?.split("-")?.[0] || "en";
+
   return {
     props: {
-      refreshToken: refreshToken,
+      refreshToken: refreshToken || null,
+      language: language,
+      strings: languageCache(
+        languageListCache().findIndex((e) => e === language) !== -1
+          ? language
+          : "en"
+      ),
     },
   };
 }

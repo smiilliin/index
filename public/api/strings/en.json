@@ -3,5 +3,6 @@
   "ID_OR_PASSWORD_WRONG": "The ID or PASSWORD is wrong.",
   "ID_DUPLICATE": "The ID is duplicated.",
   "TOKEN_WRONG": "Token is wrong.",
-  "RECAPTCHA_WRONG": "The RECAPTCHA is wrong."
+  "RECAPTCHA_WRONG": "The RECAPTCHA is wrong.",
+  "WRONG_ACCESS": "You tried wrong access."
 }

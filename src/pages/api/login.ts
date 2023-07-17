@@ -24,75 +24,101 @@ const sleep = async (ms: number) => {
   });
 };
 
-export default async (req: NextApiRequest, res: NextApiResponse<IError | ITokenData>) => {
-  await sleep(1000);
-  const { id, password } = req.body;
+export default async (
+  req: NextApiRequest,
+  res: NextApiResponse<IError | ITokenData>
+) => {
+  switch (req.method) {
+    case "POST": {
+      await sleep(1000);
+      const { id, password } = req.body;
 
-  if (!idRegex(id) || !passwordRegex(password)) {
-    return res.status(400).send({
-      reason: "ID_OR_PASSWORD_WRONG",
-    });
-  }
-
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error(err);
-
-      return res.status(400).send({
-        reason: "UNKNOWN_ERROR",
-      });
-    }
-
-    try {
-      connection.query(`SELECT * FROM user WHERE id=?`, [id], async (err, results: Array<IUserQuery>) => {
-        if (err) {
-          return res.status(400).send({
-            reason: "UNKNOWN_ERROR",
-          });
-        }
-
-        if (results.length == 0) {
-          return res.status(400).send({
-            reason: "ID_OR_PASSWORD_WRONG",
-          });
-        }
-        const { salt, password: dbPassword } = results[0];
-
-        const saltedPassword = Buffer.concat([salt, Buffer.from(password, "hex")]);
-        const hashedPassword = crypto.createHash("sha256").update(saltedPassword).digest("hex");
-
-        if (dbPassword.equals(Buffer.from(hashedPassword, "hex"))) {
-          const refreshToken = await generation.createRefreshToken(id, 20);
-
-          if (refreshToken) {
-            const refreshTokenString = generation.tokenToString(refreshToken);
-
-            res.setHeader(
-              "Set-Cookie",
-              serialize("refresh-token", refreshTokenString, {
-                httpOnly: true,
-                domain: env.cookie_domain,
-                path: "/",
-                secure: true,
-              })
-            );
-
-            return res.status(200).send({
-              "refresh-token": refreshTokenString,
-            });
-          }
-
-          return res.status(400).send({
-            reason: "UNKNOWN_ERROR",
-          });
-        }
-
+      if (!idRegex(id) || !passwordRegex(password)) {
         return res.status(400).send({
           reason: "ID_OR_PASSWORD_WRONG",
         });
+      }
+
+      return pool.getConnection((err, connection) => {
+        if (err) {
+          console.error(err);
+
+          return res.status(400).send({
+            reason: "UNKNOWN_ERROR",
+          });
+        }
+
+        try {
+          connection.query(
+            `SELECT * FROM user WHERE id=?`,
+            [id],
+            async (err, results: Array<IUserQuery>) => {
+              if (err) {
+                return res.status(400).send({
+                  reason: "UNKNOWN_ERROR",
+                });
+              }
+
+              if (results.length == 0) {
+                return res.status(400).send({
+                  reason: "ID_OR_PASSWORD_WRONG",
+                });
+              }
+              const { salt, password: dbPassword } = results[0];
+
+              const saltedPassword = Buffer.concat([
+                salt,
+                Buffer.from(password, "hex"),
+              ]);
+              const hashedPassword = crypto
+                .createHash("sha256")
+                .update(saltedPassword)
+                .digest("hex");
+
+              if (dbPassword.equals(Buffer.from(hashedPassword, "hex"))) {
+                const refreshToken = await generation.createRefreshToken(
+                  id,
+                  20
+                );
+
+                if (refreshToken) {
+                  const refreshTokenString =
+                    generation.tokenToString(refreshToken);
+
+                  res.setHeader(
+                    "Set-Cookie",
+                    serialize("refresh-token", refreshTokenString, {
+                      httpOnly: true,
+                      domain: env.cookie_domain,
+                      path: "/",
+                      secure: true,
+                    })
+                  );
+
+                  return res.status(200).send({
+                    "refresh-token": refreshTokenString,
+                  });
+                }
+
+                return res.status(400).send({
+                  reason: "UNKNOWN_ERROR",
+                });
+              }
+
+              return res.status(400).send({
+                reason: "ID_OR_PASSWORD_WRONG",
+              });
+            }
+          );
+        } finally {
+          connection.release();
+        }
       });
-    } finally {
-      connection.release();
     }
-  });
+    default: {
+      return res.status(400).send({
+        reason: "WRONG_ACCESS",
+      });
+    }
+  }
 };

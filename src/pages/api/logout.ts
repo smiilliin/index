@@ -5,22 +5,31 @@ import { serialize } from "cookie";
 interface INull {}
 
 export default async (req: NextApiRequest, res: NextApiResponse<INull>) => {
-  res.setHeader("Set-Cookie", [
-    serialize("refresh-token", "", {
-      httpOnly: true,
-      expires: new Date(1),
-      path: "/",
-      domain: env.cookie_domain,
-      secure: true,
-    }),
-    serialize("access-token", "", {
-      httpOnly: true,
-      expires: new Date(1),
-      path: "/",
-      domain: env.cookie_domain,
-      secure: true,
-    }),
-  ]);
+  switch (req.method) {
+    case "GET": {
+      res.setHeader("Set-Cookie", [
+        serialize("refresh-token", "", {
+          httpOnly: true,
+          expires: new Date(1),
+          path: "/",
+          domain: env.cookie_domain,
+          secure: true,
+        }),
+        serialize("access-token", "", {
+          httpOnly: true,
+          expires: new Date(1),
+          path: "/",
+          domain: env.cookie_domain,
+          secure: true,
+        }),
+      ]);
 
-  res.status(200).send({});
+      return res.status(200).send({});
+    }
+    default: {
+      return res.status(400).send({
+        reason: "WRONG_ACCESS",
+      });
+    }
+  }
 };
