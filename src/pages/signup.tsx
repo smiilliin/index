@@ -14,6 +14,7 @@ import { recaptchaPublicKey } from "@/front/static";
 import styled from "styled-components";
 import StringsManager, { IStrings } from "@/front/stringsManager";
 import { languageCache, languageListCache } from "@/front/languageCache";
+import Checkbox from "@/components/checkbox";
 
 const Title = styled.h2`
   color: var(--font-second-color);
@@ -68,10 +69,27 @@ export default ({
       const refreshToken: string = await authAPI.signup(
         id,
         password,
-        g_response as string
+        g_response as string,
+        formData.get("keepLoggedin") === "on"
       );
       await authAPI.getAccessToken(refreshToken);
-      window.location.href = "/";
+
+      const url = new URL(window.location.toString());
+      try {
+        const nextURLStringEncoded = url.searchParams.get("next");
+        if (nextURLStringEncoded) {
+          const nextURLString = decodeURIComponent(nextURLStringEncoded);
+          const nextURL = new URL(nextURLString);
+          const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
+            nextURL.hostname
+          );
+          if (redirectable) {
+            window.location.href = nextURLString;
+            return;
+          }
+        }
+      } catch {}
+      window.location.href = "";
     } catch (err: any) {
       setMessage(err.message);
       recaptcha.current?.reset();
@@ -91,7 +109,12 @@ export default ({
           <Title>SIGNUP</Title>
           <Message>{message}</Message>
           <Form spellCheck="false" onSubmit={submit}>
-            <Input style={inputStyle} placeholder="ID" name="id" type="text" />
+            <Input
+              style={inputStyle}
+              placeholder={"ID" + stringsManager.getString("ID_REQUIREMENT")}
+              name="id"
+              type="text"
+            />
             <Input
               style={inputStyle}
               placeholder="PASSWORD"
@@ -110,6 +133,9 @@ export default ({
               ref={recaptcha}
             ></ReCAPTCHA>
             <ButtonInput style={inputStyle} type="submit" value="SIGNUP" />
+            <Checkbox name="keepLoggedin">
+              {stringsManager.getString("KEEP_LOGGEDIN")}
+            </Checkbox>
           </Form>
         </CenterContainer>
       </main>

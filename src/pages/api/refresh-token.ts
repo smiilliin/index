@@ -19,6 +19,8 @@ export default async (
     case "GET": {
       const tokenString = req.headers.authorization;
       const token = generation.verifyRefreshToken(tokenString);
+      const { keepLoggedin } = req.query;
+
       if (!token) {
         return res.status(400).send({
           reason: "TOKEN_WRONG",
@@ -41,6 +43,7 @@ export default async (
           domain: env.cookie_domain,
           path: "/",
           secure: true,
+          expires: keepLoggedin ? new Date(updatedToken.expires) : undefined,
         })
       );
 

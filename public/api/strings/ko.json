@@ -4,5 +4,7 @@
   "ID_DUPLICATE": "이미 사용중인 ID입니다.",
   "TOKEN_WRONG": "토큰이 바르지 않습니다.",
   "RECAPTCHA_WRONG": "RECAPTCHA가 바르지 않습니다.",
-  "WRONG_ACCESS": "잘못된 접근을 했습니다."
+  "WRONG_ACCESS": "잘못된 접근을 했습니다.",
+  "NO_ACCESS": "엑세스 권한이 없습니다.",
+  "UNAVAILABLE_RANK": "랭크가 바르지 않습니다."
 }

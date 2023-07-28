@@ -16,25 +16,37 @@ import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import Message from "@/components/message";
 import styled from "styled-components";
+import Checkbox from "@/components/checkbox";
+import { languageCache, languageListCache } from "@/front/languageCache";
+import StringsManager, { IStrings } from "@/front/stringsManager";
+import Link from "@/components/link";
 
 const Title = styled.h2`
   color: var(--font-second-color);
   margin-bottom: 10px;
 `;
 
-export default ({ refreshToken }: { refreshToken: string | null }) => {
+export default ({
+  refreshToken,
+  language,
+  strings,
+}: {
+  refreshToken: string | null;
+  language: string;
+  strings: IStrings;
+}) => {
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>();
   const inputStyle = { width: "100%", height: "40px" };
+  const stringsManager = new StringsManager(strings);
 
   useEffect(() => {
     (async () => {
       if (refreshToken) window.location.href = "/";
 
-      const lang = window.navigator.language.split("-")[0];
       const authAPI = new AuthAPI("/api");
 
-      await authAPI.load(lang);
+      await authAPI.load(language);
       setAuthAPI(authAPI);
     })();
   }, []);
@@ -48,9 +60,29 @@ export default ({ refreshToken }: { refreshToken: string | null }) => {
     const password = formData.get("password") as string;
 
     try {
-      const refreshToken: string = await authAPI.login(id, password);
+      const refreshToken: string = await authAPI.login(
+        id,
+        password,
+        formData.get("keepLoggedin") === "on"
+      );
       await authAPI.getAccessToken(refreshToken);
-      window.location.href = "/";
+
+      const url = new URL(window.location.toString());
+      try {
+        const nextURLStringEncoded = url.searchParams.get("next");
+        if (nextURLStringEncoded) {
+          const nextURLString = decodeURIComponent(nextURLStringEncoded);
+          const nextURL = new URL(nextURLString);
+          const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
+            nextURL.hostname
+          );
+          if (redirectable) {
+            window.location.href = nextURLString;
+            return;
+          }
+        }
+      } catch {}
+      window.location.href = "";
     } catch (err: any) {
       setMessage(err.message);
       console.error(err);
@@ -77,6 +109,10 @@ export default ({ refreshToken }: { refreshToken: string | null }) => {
               type="password"
             />
             <ButtonInput style={inputStyle} type="submit" value="LOGIN" />
+            <Checkbox name="keepLoggedin">
+              {stringsManager.getString("KEEP_LOGGEDIN")}
+            </Checkbox>
+            <Link href="/signup">{stringsManager.getString("SIGNUP")}</Link>
           </Form>
         </CenterContainer>
       </main>
@@ -87,9 +123,21 @@ export default ({ refreshToken }: { refreshToken: string | null }) => {
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
 
+  const language =
+    context.req?.headers["accept-language"]
+      ?.split(";")?.[0]
+      .split(",")?.[0]
+      ?.split("-")?.[0] || "en";
+
   return {
     props: {
       refreshToken: refreshToken || null,
+      language: language,
+      strings: languageCache(
+        languageListCache().findIndex((e) => e === language) !== -1
+          ? language
+          : "en"
+      ),
     },
   };
 }

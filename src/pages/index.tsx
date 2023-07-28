@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { MouseEvent, ReactElement, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import styled from "styled-components";
 import CenterContainer from "@/components/centercontainer";
 import { NextPageContext } from "next";
@@ -9,6 +9,7 @@ import { jwtParser } from "@/front/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
 import smile from "@/front/smile.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
+import IndexAPI, { Rank } from "@/front/IndexAPI";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -29,30 +30,31 @@ export default ({
   refreshToken,
   language,
   strings,
+  rank,
+  id,
 }: {
   accessToken: string | null;
   refreshToken: string | null;
   language: string;
   strings: IStrings;
+  rank: string | null;
+  id: string | null;
 }) => {
-  const [id, setID] = useState<string>();
-
   const [authAPI, setAuthAPI] = useState<AuthAPI>();
+  const [indexAPI, setIndexAPI] = useState<IndexAPI>();
   const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
 
   const stringsManager = new StringsManager(strings);
 
   useEffect(() => {
-    if (refreshToken) {
-      setID(jwtParser(refreshToken)?.id);
-    }
-  }, [refreshToken]);
-  useEffect(() => {
     (async () => {
       const authAPI = new AuthAPI("/api");
+      const indexAPI = new IndexAPI("/api");
 
       await authAPI.load(language);
+      await indexAPI.load(language);
       setAuthAPI(authAPI);
+      setIndexAPI(indexAPI);
     })();
   }, []);
   useEffect(() => {
@@ -60,13 +62,22 @@ export default ({
       if (!refreshToken) return;
       if (!authAPI) return;
 
-      if (!accessToken) {
+      if (!accessToken || jwtParser(accessToken)?.expires > Date.now()) {
         accessToken = await authAPI.getAccessToken(refreshToken);
       }
 
       setTokenKeeper(new TokenKeeper(authAPI, refreshToken, accessToken));
     })();
   }, [authAPI]);
+  useEffect(() => {
+    (async () => {
+      if (!indexAPI) return;
+      if (!rank) return;
+      // const rank = (await indexAPI.getRank(accessToken)).rank;
+      console.log(indexAPI.hasRank(rank, Rank.ADMIN));
+      console.log(indexAPI.hasRank(rank, Rank.SUPERTHANKS));
+    })();
+  }, [indexAPI]);
   useEffect(() => {
     if (!tokenKeeper) return;
     tokenKeeper.setTokenInterval();
@@ -81,25 +92,19 @@ export default ({
       </Head>
       <main>
         <CenterContainer>
-          <Navbar id={id}></Navbar>
+          <Navbar id={id || undefined}></Navbar>
           <img src={smile.src} width="200px" alt="icon"></img>
           <BigTitle>👋 SMIILLIIN - Smile</BigTitle>
           <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
           <Icons>
             <a href="https://github.com/smiilliin">
-              <img
-                src="https://github.githubassets.com/favicons/favicon-dark.svg"
-                width="30px"
-              />
+              <img src="https://github.githubassets.com/favicons/favicon-dark.svg" width="30px" />
             </a>
             <a href="https://instagram.com/smiilliin">
               <img src="https://instagram.com/favicon.ico" width="30px" />
             </a>
             <a href="mailto:smiilliindeveloper@gamil.com">
-              <img
-                src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
-                width="30px"
-              />
+              <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" width="30px" />
             </a>
           </Icons>
         </CenterContainer>
@@ -108,27 +113,32 @@ export default ({
   );
 };
 import { languageCache, languageListCache } from "@/front/languageCache";
+import { getRank } from "@/back/rank";
+import reqlimit from "@/back/reqlimit";
+import { pool } from "@/back/static";
 
 export async function getServerSideProps(context: NextPageContext) {
-  const { "access-token": accessToken, "refresh-token": refreshToken } =
-    cookies(context);
+  const { "access-token": accessToken, "refresh-token": refreshToken } = cookies(context);
 
-  const language =
-    context.req?.headers["accept-language"]
-      ?.split(";")?.[0]
-      .split(",")?.[0]
-      ?.split("-")?.[0] || "en";
+  const language = context.req?.headers["accept-language"]?.split(";")?.[0].split(",")?.[0]?.split("-")?.[0] || "en";
+
+  let rank: Buffer | undefined;
+  let id: string | undefined;
+  if (accessToken) {
+    id = jwtParser(accessToken)?.id as string;
+    rank = await getRank(id);
+
+    console.log(await reqlimit(pool, id));
+  }
 
   return {
     props: {
       accessToken: accessToken || null,
       refreshToken: refreshToken || null,
       language: language,
-      strings: languageCache(
-        languageListCache().findIndex((e) => e === language) !== -1
-          ? language
-          : "en"
-      ),
+      id: id || null,
+      strings: languageCache(languageListCache().findIndex((e) => e === language) !== -1 ? language : "en"),
+      rank: rank?.toString("hex") || null,
     },
   };
 }

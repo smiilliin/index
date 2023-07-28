@@ -4,5 +4,7 @@
   "ID_DUPLICATE": "The ID is duplicated.",
   "TOKEN_WRONG": "Token is wrong.",
   "RECAPTCHA_WRONG": "The RECAPTCHA is wrong.",
-  "WRONG_ACCESS": "You tried wrong access."
+  "WRONG_ACCESS": "You tried wrong access.",
+  "NO_ACCESS": "You don't have access.",
+  "UNAVILABLE_RANK": "The rank is unavailable"
 }

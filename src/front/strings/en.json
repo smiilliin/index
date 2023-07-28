@@ -1,4 +1,7 @@
 {
   "HELLO": "Hi there!",
-  "PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS": "Password checks do not match."
+  "PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS": "Password checks do not match.",
+  "KEEP_LOGGEDIN": "Keep logged in",
+  "SIGNUP": "SIGNUP",
+  "ID_REQUIREMENT": "(4~20 lowercase characters, numbers)"
 }

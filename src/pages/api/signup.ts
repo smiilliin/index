@@ -5,6 +5,8 @@ import { env } from "@/back/env";
 import { serialize } from "cookie";
 import { checkRecaptcha } from "@/back/recaptcha";
 import en from "@/../public/api/strings/en.json";
+import { getConnection, query } from "@/back/db";
+import { PoolConnection } from "mysql";
 
 interface IError {
   reason: keyof typeof en;
@@ -25,7 +27,7 @@ export default async (
   switch (req.method) {
     case "POST": {
       await sleep(1000);
-      const { id, password, g_response } = req.body;
+      const { id, password, g_response, keepLoggedin } = req.body;
       if (!(await checkRecaptcha(g_response))) {
         return res.status(400).send({
           reason: "RECAPTCHA_WRONG",
@@ -38,65 +40,67 @@ export default async (
         });
       }
 
-      return pool.getConnection((err, connection) => {
-        if (err) {
-          console.error(err);
+      let connection: PoolConnection | undefined;
+      try {
+        connection = await getConnection(pool);
 
+        const salt = crypto.randomBytes(8);
+        const saltedPassword = Buffer.concat([
+          salt,
+          Buffer.from(password, "hex"),
+        ]);
+        const hashedPassword = crypto
+          .createHash("sha256")
+          .update(saltedPassword)
+          .digest("hex");
+
+        if (
+          (await query(connection, "SELECT id FROM user WHERE id=?", [id]))
+            .length != 0
+        ) {
+          return res.status(400).send({
+            reason: "ID_DUPLICATE",
+          });
+        }
+
+        await query(connection, "INSERT INTO user VALUES(?, ?, ?)", [
+          id,
+          salt,
+          Buffer.from(hashedPassword, "hex"),
+        ]);
+
+        const refreshToken = await generation.createRefreshToken(id, 20);
+
+        if (!refreshToken) {
           return res.status(400).send({
             reason: "UNKNOWN_ERROR",
           });
         }
+        const refreshTokenString = generation.tokenToString(refreshToken);
 
-        try {
-          const salt = crypto.randomBytes(8);
-          const saltedPassword = Buffer.concat([
-            salt,
-            Buffer.from(password, "hex"),
-          ]);
-          const hashedPassword = crypto
-            .createHash("sha256")
-            .update(saltedPassword)
-            .digest("hex");
+        res.setHeader(
+          "Set-Cookie",
+          serialize("refresh-token", refreshTokenString, {
+            httpOnly: true,
+            domain: env.cookie_domain,
+            path: "/",
+            secure: true,
+            expires: keepLoggedin ? new Date(refreshToken.expires) : undefined,
+          })
+        );
 
-          connection.query(
-            `INSERT INTO user VALUES(?, ?, ?);`,
-            [id, salt, Buffer.from(hashedPassword, "hex")],
-            async (err) => {
-              if (err) {
-                return res.status(400).send({
-                  reason: "ID_DUPLICATE",
-                });
-              }
-              const refreshToken = await generation.createRefreshToken(id, 20);
-
-              if (refreshToken) {
-                const refreshTokenString =
-                  generation.tokenToString(refreshToken);
-
-                res.setHeader(
-                  "Set-Cookie",
-                  serialize("refresh-token", refreshTokenString, {
-                    httpOnly: true,
-                    domain: env.cookie_domain,
-                    path: "/",
-                    secure: true,
-                  })
-                );
-
-                return res.status(200).send({
-                  "refresh-token": refreshTokenString,
-                });
-              }
-
-              return res.status(400).send({
-                reason: "UNKNOWN_ERROR",
-              });
-            }
-          );
-        } finally {
-          connection.release();
-        }
-      });
+        return res.status(200).send({
+          "refresh-token": refreshTokenString,
+        });
+      } catch (err) {
+        console.error(err);
+        res.status(400).send({
+          reason: "UNKNOWN_ERROR",
+        });
+      } finally {
+        connection?.release();
+      }
+      break;
     }
     default: {
       return res.status(400).send({

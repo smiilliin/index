@@ -10,7 +10,7 @@ class StringsManager {
   constructor(strings: IStrings) {
     this.strings = strings;
   }
-  getString(key: keyof typeof en): string | undefined {
+  getString(key: keyof typeof en): string {
     const text = this.strings?.[key];
     return text ? text : en[key];
   }

@@ -22,4 +22,6 @@ const passwordRegex = (password: string) => {
   return typeof password === "string" && /^[a-fA-F0-9]{64}$|^0x[a-fA-F0-9]{64}$/.test(password);
 };
 
-export { pool, generation, idRegex, passwordRegex };
+const REQLIMIT = 500;
+
+export { pool, generation, idRegex, passwordRegex, REQLIMIT };
