@@ -1,6 +1,8 @@
 import { PoolConnection } from "mysql";
-import { getConnection, query } from "./db";
+import { fromdb, query } from "./db";
 import { pool } from "./static";
+import { andOperation, isEmpty } from "./bit";
+import { Rank, getRankFromBuffer } from "@/front/ranks";
 
 interface IRankQuery {
   rank: Buffer;
@@ -9,28 +11,29 @@ interface IRankQuery {
 const getRankDB = async (
   connection: PoolConnection,
   id: string
-): Promise<Buffer> => {
+): Promise<Rank | null> => {
   const result = await query<IRankQuery>(
     connection,
     "SELECT rank FROM userRank WHERE id=?",
     [id]
   );
-  if (result.length == 0) return Buffer.from([0x00]);
-  return result[0].rank;
+  if (result.length == 0) return null;
+  return getRankFromBuffer(result[0].rank);
 };
-const getRank = async (id: string): Promise<Buffer | undefined> => {
-  let connection: PoolConnection | undefined;
+const getRank = fromdb(pool, getRankDB, null);
 
-  try {
-    connection = await getConnection(pool);
-
-    const rank = await getRankDB(connection, id);
-    return rank;
-  } catch (err) {
-    console.error(err);
-  } finally {
-    connection?.release();
+const isAdminDB = async (
+  connection: PoolConnection,
+  id: string
+): Promise<boolean> => {
+  const rank = await getRankDB(connection, id);
+  if (rank) {
+    return !isEmpty(
+      andOperation(Buffer.from([rank]), Buffer.from([Rank.ADMIN]))
+    );
   }
+  return false;
 };
+const isAdmin = fromdb(pool, isAdminDB, false);
 
-export { getRank, getRankDB };
+export { getRankDB, getRank, isAdminDB, isAdmin };

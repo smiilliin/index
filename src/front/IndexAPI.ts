@@ -1,29 +1,36 @@
-import { andOperation, isEmpty } from "@/back/bit";
 import { BaseAPI } from "fetchstrings";
+import { Rank } from "./ranks";
+import { IUser, IUserList } from "@/pages/api/user-list";
+import { IRankData } from "@/pages/api/rank";
 
-interface IRank {
-  rank: string;
-}
-
-enum Rank {
-  ADMIN = 1 << 0,
-  SUPERTHANKS = 1 << 1,
-  NSOS = 1 << 2,
-}
 class IndexAPI extends BaseAPI {
-  hasRank(userRank: string, rank: Rank) {
-    return !isEmpty(
-      andOperation(Buffer.from(userRank, "hex"), Buffer.from([rank]))
+  setRank(targetID: string, rank: Rank): Promise<void> {
+    return this.put(
+      "/rank",
+      { id: targetID, rank: Buffer.from([rank]).toString("hex") },
+      {}
     );
   }
-  setRank(accessToken: string, targetID: string, rank: Rank) {
-    this.post(
-      "/rank",
-      { id: targetID, rank: rank },
-      { headers: { authorization: accessToken } }
-    );
+  grantRank(targetID: string, rank: Rank): Promise<void> {
+    return this.patch("/rank", { id: targetID, rank: rank });
+  }
+  revokeRank(targetID: string, rank: Rank): Promise<void> {
+    return this.delete("/rank", { id: targetID, rank: rank });
+  }
+  async getUserRank(id: string): Promise<string> {
+    const { rank } = await this.get<IRankData>("/rank", { id: id });
+    return rank;
+  }
+  async getUserList(
+    page: number,
+    pageSize: number = 20
+  ): Promise<Array<IUser>> {
+    const { userList } = await this.get<IUserList>("/user-list", {
+      page: page,
+      pageSize: pageSize,
+    });
+    return userList;
   }
 }
 
 export default IndexAPI;
-export { Rank };

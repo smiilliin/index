@@ -17,7 +17,8 @@ export default async (
 ) => {
   switch (req.method) {
     case "GET": {
-      const tokenString = req.headers.authorization;
+      const tokenString =
+        req.headers.authorization || req.cookies["refresh-token"];
       const token = generation.verifyRefreshToken(tokenString);
       const { keepLoggedin } = req.query;
 
@@ -42,6 +43,7 @@ export default async (
           path: "/",
           secure: true,
           expires: keepLoggedin ? new Date(accessToken.expires) : undefined,
+          sameSite: "strict",
         })
       );
       return res.status(200).send({

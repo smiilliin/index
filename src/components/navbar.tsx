@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Button } from "./button";
+import Ranks from "@/components/ranks";
 
 const NavBar = styled.div`
   // padding-top: 8px;
@@ -12,20 +13,33 @@ const NavBar = styled.div`
   position: absolute;
   left: 0;
   top: 0;
-  grid-template-columns: 1fr calc((var(--button-width) + var(--button-margin) * 2) * 2);
+  grid-template-columns: 1fr calc(
+      (var(--button-width) + var(--button-margin) * 2) * 2
+    );
   align-items: center;
 `;
 const Buttons = styled.div`
   text-align: right;
 `;
-const Id = styled.span`
+const IDRank = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+const ID = styled.span`
   text-align: left;
 `;
 
-export default ({ id }: { id?: string }) => {
+interface IENavbar {
+  id?: string;
+  rankStrings?: Array<string>;
+}
+export default ({ id, rankStrings }: IENavbar) => {
   return (
     <NavBar>
-      <Id>{id}</Id>
+      <IDRank>
+        <ID>{id}</ID>
+        <Ranks rankStrings={rankStrings || new Array()}></Ranks>
+      </IDRank>
 
       <Buttons>
         {!id && (
@@ -39,3 +53,4 @@ export default ({ id }: { id?: string }) => {
     </NavBar>
   );
 };
+export { ID, IDRank };

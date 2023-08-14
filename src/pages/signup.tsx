@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import CenterContainer from "@/components/centercontainer";
 import { ButtonInput } from "@/components/button";
 import Form from "@/components/form";
@@ -31,7 +31,7 @@ export default ({
   strings: IStrings;
 }) => {
   const recaptcha = React.useRef<ReCAPTCHA>(null);
-  const [authAPI, setAuthAPI] = useState<AuthAPI>();
+  const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const [message, setMessage] = useState<string | undefined>();
   const inputStyle = { width: "100%", height: "40px" };
 
@@ -41,10 +41,7 @@ export default ({
     (async () => {
       if (refreshToken) window.location.href = "/";
 
-      const authAPI = new AuthAPI("/api");
-
       await authAPI.load(language);
-      setAuthAPI(authAPI);
     })();
   }, []);
 
@@ -66,13 +63,13 @@ export default ({
     }
 
     try {
-      const refreshToken: string = await authAPI.signup(
+      await authAPI.signup(
         id,
         password,
         g_response as string,
         formData.get("keepLoggedin") === "on"
       );
-      await authAPI.getAccessToken(refreshToken);
+      await authAPI.getAccessToken({});
 
       const url = new URL(window.location.toString());
       try {
@@ -89,7 +86,7 @@ export default ({
           }
         }
       } catch {}
-      window.location.href = "";
+      window.location.href = "/";
     } catch (err: any) {
       setMessage(err.message);
       recaptcha.current?.reset();

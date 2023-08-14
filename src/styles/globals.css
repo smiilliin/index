@@ -26,8 +26,3 @@ input {
 html {
   background-color: var(--first-color);
 }
-
-.asdf {
-  height: 100vh;
-  height: -webkit-fill-available;
-}

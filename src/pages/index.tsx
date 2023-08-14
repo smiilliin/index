@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { MouseEvent, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import CenterContainer from "@/components/centercontainer";
 import { NextPageContext } from "next";
@@ -7,9 +7,10 @@ import cookies from "next-cookies";
 import Navbar from "@/components/navbar";
 import { jwtParser } from "@/front/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
-import smile from "@/front/smile.svg";
+import smile from "@/images/smile.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
-import IndexAPI, { Rank } from "@/front/IndexAPI";
+import IndexAPI from "@/front/IndexAPI";
+import Image from "next/image";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -24,64 +25,56 @@ const Icons = styled.div`
   flex-direction: row;
   gap: 10px;
 `;
+interface IEMain {
+  accessToken: string | null;
+  refreshToken: string | null;
+  language: string;
+  strings: IStrings;
+  rankStrings: Array<string>;
+  id: string | null;
+}
 
 export default ({
   accessToken,
   refreshToken,
   language,
   strings,
-  rank,
+  rankStrings,
   id,
-}: {
-  accessToken: string | null;
-  refreshToken: string | null;
-  language: string;
-  strings: IStrings;
-  rank: string | null;
-  id: string | null;
-}) => {
-  const [authAPI, setAuthAPI] = useState<AuthAPI>();
-  const [indexAPI, setIndexAPI] = useState<IndexAPI>();
-  const [tokenKeeper, setTokenKeeper] = useState<TokenKeeper>();
+}: IEMain) => {
+  const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
+  const indexAPI: IndexAPI = useMemo(() => new IndexAPI("/api"), []);
 
-  const stringsManager = new StringsManager(strings);
+  const stringsManager = useMemo(() => new StringsManager(strings), [strings]);
 
   useEffect(() => {
     (async () => {
-      const authAPI = new AuthAPI("/api");
-      const indexAPI = new IndexAPI("/api");
-
       await authAPI.load(language);
       await indexAPI.load(language);
-      setAuthAPI(authAPI);
-      setIndexAPI(indexAPI);
     })();
   }, []);
   useEffect(() => {
     (async () => {
-      if (!refreshToken) return;
       if (!authAPI) return;
+      if (!refreshToken || !accessToken) return;
 
-      if (!accessToken || jwtParser(accessToken)?.expires > Date.now()) {
-        accessToken = await authAPI.getAccessToken(refreshToken);
-      }
+      const tokenKeeper = new TokenKeeper(authAPI, refreshToken, accessToken);
+      tokenKeeper.watchAccessToken = (_accessToken) => {
+        accessToken = _accessToken;
+      };
 
-      setTokenKeeper(new TokenKeeper(authAPI, refreshToken, accessToken));
+      tokenKeeper.setTokenInterval();
     })();
   }, [authAPI]);
   useEffect(() => {
     (async () => {
       if (!indexAPI) return;
-      if (!rank) return;
-      // const rank = (await indexAPI.getRank(accessToken)).rank;
-      console.log(indexAPI.hasRank(rank, Rank.ADMIN));
-      console.log(indexAPI.hasRank(rank, Rank.SUPERTHANKS));
+
+      // if (accessToken && ranks.indexOf(String(Rank.ADMIN)) != -1) {
+      //   indexAPI.setRank("smile", Rank.ADMIN | Rank.SUPERTHANKS | Rank.CLOUD);
+      // }
     })();
   }, [indexAPI]);
-  useEffect(() => {
-    if (!tokenKeeper) return;
-    tokenKeeper.setTokenInterval();
-  }, [tokenKeeper]);
 
   return (
     <>
@@ -92,19 +85,28 @@ export default ({
       </Head>
       <main>
         <CenterContainer>
-          <Navbar id={id || undefined}></Navbar>
-          <img src={smile.src} width="200px" alt="icon"></img>
+          <Navbar
+            id={id || undefined}
+            rankStrings={rankStrings || undefined}
+          ></Navbar>
+          <Image src={smile} width={200} alt="icon"></Image>
           <BigTitle>👋 SMIILLIIN - Smile</BigTitle>
           <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
           <Icons>
             <a href="https://github.com/smiilliin">
-              <img src="https://github.githubassets.com/favicons/favicon-dark.svg" width="30px" />
+              <img
+                src="https://github.githubassets.com/favicons/favicon-dark.svg"
+                width="30px"
+              />
             </a>
             <a href="https://instagram.com/smiilliin">
               <img src="https://instagram.com/favicon.ico" width="30px" />
             </a>
             <a href="mailto:smiilliindeveloper@gamil.com">
-              <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" width="30px" />
+              <img
+                src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
+                width="30px"
+              />
             </a>
           </Icons>
         </CenterContainer>
@@ -114,21 +116,66 @@ export default ({
 };
 import { languageCache, languageListCache } from "@/front/languageCache";
 import { getRank } from "@/back/rank";
-import reqlimit from "@/back/reqlimit";
-import { pool } from "@/back/static";
+import { Rank, getRankStrings } from "@/front/ranks";
+import { IAccessToken, IRefreshToken } from "token-generation";
+import { serialize } from "cookie";
+import { env } from "@/back/env";
 
 export async function getServerSideProps(context: NextPageContext) {
-  const { "access-token": accessToken, "refresh-token": refreshToken } = cookies(context);
+  let { "access-token": accessToken, "refresh-token": refreshToken } =
+    cookies(context);
 
-  const language = context.req?.headers["accept-language"]?.split(";")?.[0].split(",")?.[0]?.split("-")?.[0] || "en";
+  let refreshTokenData: IRefreshToken | undefined;
+  let accessTokenData: IAccessToken | undefined;
 
-  let rank: Buffer | undefined;
-  let id: string | undefined;
+  if (refreshToken) {
+    refreshTokenData = jwtParser<IRefreshToken>(refreshToken);
+
+    const refreshTokenExpired = (refreshTokenData?.expires || 0) < Date.now();
+    if (refreshTokenExpired) {
+      refreshToken = undefined;
+    }
+  }
+  let needNewAccessToken: boolean = true;
   if (accessToken) {
-    id = jwtParser(accessToken)?.id as string;
-    rank = await getRank(id);
+    accessTokenData = jwtParser<IAccessToken>(accessToken);
 
-    console.log(await reqlimit(pool, id));
+    needNewAccessToken = (accessTokenData?.expires || 0) < Date.now();
+  }
+
+  try {
+    if (needNewAccessToken) {
+      const authAPI = new AuthAPI("https://smiilliin.com/api");
+
+      accessToken = undefined;
+      accessToken = await authAPI.getAccessToken({
+        refreshToken: refreshToken,
+      });
+
+      context.res?.setHeader(
+        "Set-Cookie",
+        serialize("access-token", accessToken, {
+          httpOnly: true,
+          domain: env.cookie_domain,
+          path: "/",
+          secure: true,
+          sameSite: "strict",
+        })
+      );
+    }
+  } catch {}
+  const language =
+    context.req?.headers["accept-language"]
+      ?.split(";")?.[0]
+      .split(",")?.[0]
+      ?.split("-")?.[0] || "en";
+
+  let rank: Rank | null = null;
+  let id = accessTokenData?.id;
+
+  if (id) {
+    rank = await getRank(id);
+    // console.log(await reqlimit(pool, id));
   }
 
   return {
@@ -137,8 +184,12 @@ export async function getServerSideProps(context: NextPageContext) {
       refreshToken: refreshToken || null,
       language: language,
       id: id || null,
-      strings: languageCache(languageListCache().findIndex((e) => e === language) !== -1 ? language : "en"),
-      rank: rank?.toString("hex") || null,
+      strings: languageCache(
+        languageListCache().findIndex((e) => e === language) !== -1
+          ? language
+          : "en"
+      ),
+      rankStrings: rank ? getRankStrings(rank) : null,
     },
   };
 }

@@ -4,8 +4,7 @@ import crypto from "crypto";
 import { env } from "@/back/env";
 import { serialize } from "cookie";
 import en from "@/../public/api/strings/en.json";
-import { getConnection, query } from "@/back/db";
-import { PoolConnection } from "mysql";
+import { fromdb, query } from "@/back/db";
 
 interface IError {
   reason: keyof typeof en;
@@ -41,67 +40,69 @@ export default async (
         });
       }
 
-      let connection: PoolConnection | undefined;
-      try {
-        connection = await getConnection(pool);
-        const results = await query<IUserQuery>(
-          connection,
-          "SELECT * FROM user WHERE id=?",
-          [id]
-        );
-        if (results.length == 0) {
-          return res.status(400).send({
-            reason: "ID_OR_PASSWORD_WRONG",
+      await fromdb(
+        pool,
+        async (connection) => {
+          const results = await query<IUserQuery>(
+            connection,
+            "SELECT * FROM user WHERE id=?",
+            [id]
+          );
+          if (results.length == 0) {
+            return res.status(400).send({
+              reason: "ID_OR_PASSWORD_WRONG",
+            });
+          }
+          const { salt, password: dbPassword } = results[0];
+
+          const saltedPassword = Buffer.concat([
+            salt,
+            Buffer.from(password, "hex"),
+          ]);
+          const hashedPassword = crypto
+            .createHash("sha256")
+            .update(saltedPassword)
+            .digest("hex");
+
+          if (!dbPassword.equals(Buffer.from(hashedPassword, "hex"))) {
+            return res.status(400).send({
+              reason: "ID_OR_PASSWORD_WRONG",
+            });
+          }
+
+          const refreshToken = await generation.createRefreshToken(id, 20);
+
+          if (!refreshToken) {
+            return res.status(400).send({
+              reason: "UNKNOWN_ERROR",
+            });
+          }
+          const refreshTokenString = generation.tokenToString(refreshToken);
+
+          res.setHeader(
+            "Set-Cookie",
+            serialize("refresh-token", refreshTokenString, {
+              httpOnly: true,
+              domain: env.cookie_domain,
+              path: "/",
+              expires: keepLoggedin
+                ? new Date(refreshToken.expires)
+                : undefined,
+              secure: true,
+              sameSite: "strict",
+            })
+          );
+
+          return res.status(200).send({
+            "refresh-token": refreshTokenString,
           });
-        }
-        const { salt, password: dbPassword } = results[0];
-
-        const saltedPassword = Buffer.concat([
-          salt,
-          Buffer.from(password, "hex"),
-        ]);
-        const hashedPassword = crypto
-          .createHash("sha256")
-          .update(saltedPassword)
-          .digest("hex");
-
-        if (!dbPassword.equals(Buffer.from(hashedPassword, "hex"))) {
-          return res.status(400).send({
-            reason: "ID_OR_PASSWORD_WRONG",
-          });
-        }
-
-        const refreshToken = await generation.createRefreshToken(id, 20);
-
-        if (!refreshToken) {
-          return res.status(400).send({
+        },
+        () => {
+          res.status(400).send({
             reason: "UNKNOWN_ERROR",
           });
         }
-        const refreshTokenString = generation.tokenToString(refreshToken);
-
-        res.setHeader(
-          "Set-Cookie",
-          serialize("refresh-token", refreshTokenString, {
-            httpOnly: true,
-            domain: env.cookie_domain,
-            path: "/",
-            expires: keepLoggedin ? new Date(refreshToken.expires) : undefined,
-            secure: true,
-          })
-        );
-
-        return res.status(200).send({
-          "refresh-token": refreshTokenString,
-        });
-      } catch (err) {
-        console.error(err);
-        res.status(400).send({
-          reason: "UNKNOWN_ERROR",
-        });
-      } finally {
-        connection?.release();
-      }
+      )();
       break;
     }
     default: {

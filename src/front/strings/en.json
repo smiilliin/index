@@ -3,5 +3,8 @@
   "PASSWORD_AND_PASSWORD_CHECK_NOT_EQUALS": "Password checks do not match.",
   "KEEP_LOGGEDIN": "Keep logged in",
   "SIGNUP": "SIGNUP",
-  "ID_REQUIREMENT": "(4~20 lowercase characters, numbers)"
+  "ID_REQUIREMENT": "(4~20 lowercase characters, numbers)",
+  "DELETE_USER": "Delete user",
+  "GRANT_USER": "Grant user rank",
+  "REVOKE_USER": "Revoke user rank"
 }

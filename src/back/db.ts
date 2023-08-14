@@ -1,21 +1,10 @@
-import en from "@/../public/api/strings/en.json";
 import { Pool, PoolConnection } from "mysql";
 
-// let connection: PoolConnection | undefined;
-// try {
-//   connection = await getConnection(pool);
-// } catch (err) {
-//   console.error(err);
-//   res.status(400).send({
-//     reason: "UNKNOWN_ERROR",
-//   });
-// } finally {
-//   connection?.release();
-// }
 const getConnection = (pool: Pool): Promise<PoolConnection> => {
   return new Promise((resolve, reject) => {
     pool.getConnection((err, connection) => {
       if (err) {
+        connection?.release();
         return reject(err);
       }
       resolve(connection);
@@ -36,4 +25,27 @@ const query = <T>(
     });
   });
 };
-export { getConnection, query };
+const fromdb = <T, I extends any[]>(
+  pool: Pool,
+  dbFun: (connection: PoolConnection, ...options: I) => Promise<T>,
+  defaultResult?: T | ((err: any) => T)
+): ((...options: I) => Promise<T>) => {
+  return async (...options: I) => {
+    let connection: PoolConnection | undefined;
+
+    try {
+      connection = await getConnection(pool);
+
+      return await dbFun(connection, ...options);
+    } catch (err) {
+      // console.error(err);
+      if (typeof defaultResult === "function")
+        return (defaultResult as (err: any) => T)(err);
+      return defaultResult as T;
+    } finally {
+      connection?.release();
+    }
+  };
+};
+
+export { getConnection, query, fromdb };

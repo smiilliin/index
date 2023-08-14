@@ -4,6 +4,7 @@ import {
   MouseEvent,
   ReactElement,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -35,19 +36,16 @@ export default ({
   language: string;
   strings: IStrings;
 }) => {
-  const [authAPI, setAuthAPI] = useState<AuthAPI>();
+  const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const [message, setMessage] = useState<string>();
   const inputStyle = { width: "100%", height: "40px" };
-  const stringsManager = new StringsManager(strings);
+  const stringsManager = useMemo(() => new StringsManager(strings), [strings]);
 
   useEffect(() => {
     (async () => {
       if (refreshToken) window.location.href = "/";
 
-      const authAPI = new AuthAPI("/api");
-
       await authAPI.load(language);
-      setAuthAPI(authAPI);
     })();
   }, []);
 
@@ -60,12 +58,8 @@ export default ({
     const password = formData.get("password") as string;
 
     try {
-      const refreshToken: string = await authAPI.login(
-        id,
-        password,
-        formData.get("keepLoggedin") === "on"
-      );
-      await authAPI.getAccessToken(refreshToken);
+      await authAPI.login(id, password, formData.get("keepLoggedin") === "on");
+      await authAPI.getAccessToken({});
 
       const url = new URL(window.location.toString());
       try {
@@ -82,7 +76,7 @@ export default ({
           }
         }
       } catch {}
-      window.location.href = "";
+      window.location.href = "/";
     } catch (err: any) {
       setMessage(err.message);
       console.error(err);

@@ -1,11 +1,8 @@
-import { generation, idRegex, passwordRegex, pool } from "@/back/static";
+import { generation, idRegex, pool } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import en from "@/../public/api/strings/en.json";
-import { PoolConnection } from "mysql";
-import { Rank } from "@/front/IndexAPI";
-import { getConnection, query } from "@/back/db";
-import { andOperation } from "@/back/bit";
-import { getRank, getRankDB } from "@/back/rank";
+import { fromdb, query } from "@/back/db";
+import { getRank, getRankDB, isAdminDB } from "@/back/rank";
 
 interface IError {
   reason: keyof typeof en;
@@ -14,24 +11,17 @@ interface IRankData {
   rank: string;
 }
 interface ISuccess {}
-
-interface IRankQuery {
+interface IRank {
   rank: Buffer;
 }
-
-const isAdmin = async (
-  connection: PoolConnection,
-  id: string
-): Promise<boolean> => {
-  const rank = await getRankDB(connection, id);
-  return isEmpty(andOperation(rank, Buffer.from([Rank.ADMIN])));
-};
 
 export default async (
   req: NextApiRequest,
   res: NextApiResponse<IError | IRankData | ISuccess>
 ) => {
-  const accessToken = generation.verifyAccessToken(req.headers.authorization);
+  const accessToken = generation.verifyAccessToken(
+    req.headers.authorization || req.cookies["access-token"]
+  );
   if (!accessToken) {
     return res.status(400).send({
       reason: "TOKEN_WRONG",
@@ -40,67 +30,138 @@ export default async (
   const { id } = accessToken;
 
   switch (req.method) {
-    case "POST": {
+    case "GET": {
+      const { id: targetID } = req.body;
+
+      if (!idRegex(targetID)) {
+        return res.status(400).send({
+          reason: "UNAVAILABLE_ID",
+        });
+      }
+      await fromdb(
+        pool,
+        async (connection) => {
+          if (!(await isAdminDB(connection, id))) {
+            return res.status(400).send({ reason: "NO_ACCESS" });
+          }
+
+          return res
+            .status(200)
+            .send({ rank: getRankDB(connection, targetID) });
+        },
+        () => {
+          res.status(400).send({
+            reason: "UNKNOWN_ERROR",
+          });
+        }
+      )();
+
+      return;
+    }
+    case "PUT": {
       const { id: targetID, rank } = req.body;
 
-      let connection: PoolConnection | undefined;
-
-      try {
-        connection = await getConnection(pool);
-
-        if (!(await isAdmin(connection, id))) {
-          res.status(400).send({ reason: "NO_ACCESS" });
-        }
-
-        if (!/[0-9a-fA-F]+/g.test(rank)) {
-          res.status(400).send({ reason: "UNAVILABLE_RANK" });
-        }
-
-        await query(
-          connection,
-          "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=VALUES(rank)",
-          [targetID, Buffer.from(rank, "hex")]
-        );
-        res.status(200).send({});
-      } catch (err) {
-        console.error(err);
-        res.status(400).send({
-          reason: "UNKNOWN_ERROR",
+      if (!idRegex(targetID)) {
+        return res.status(400).send({
+          reason: "UNAVAILABLE_ID",
         });
-      } finally {
-        connection?.release();
       }
-      // const { id: theID } = req.body;
+      await fromdb(
+        pool,
+        async (connection) => {
+          if (!(await isAdminDB(connection, id))) {
+            return res.status(400).send({ reason: "NO_ACCESS" });
+          }
 
-      // const { rank } = req.body;
+          if (typeof rank !== "number") {
+            return res.status(400).send({ reason: "UNAVAILABLE_RANK" });
+          }
+          await query(
+            connection,
+            "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=?",
+            [targetID, rank, rank]
+          );
+          return res.status(200).send({});
+        },
+        () => {
+          res.status(400).send({
+            reason: "UNKNOWN_ERROR",
+          });
+        }
+      )();
 
-      // return pool.getConnection((err, connection) => {
-      //   if (err) {
-      //     console.error(err);
+      return;
+    }
+    case "PATCH": {
+      const { id: targetID, rank } = req.body;
 
-      //     return res.status(400).send({
-      //       reason: "UNKNOWN_ERROR",
-      //     });
-      //   }
+      if (!idRegex(targetID)) {
+        return res.status(400).send({
+          reason: "UNAVAILABLE_ID",
+        });
+      }
+      await fromdb(
+        pool,
+        async (connection) => {
+          if (!(await isAdminDB(connection, id))) {
+            return res.status(400).send({ reason: "NO_ACCESS" });
+          }
 
-      //   try {
-      //     connection.query(
-      //       `INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=VALUES(rank)`,
-      //       [theID, rank],
-      //       async (err) => {
-      //         if (err) {
-      //           return res.status(400).send({
-      //             reason: "UNKNOWN_ERROR",
-      //           });
-      //         }
+          if (typeof rank !== "number") {
+            return res.status(400).send({ reason: "UNAVAILABLE_RANK" });
+          }
+          await query(
+            connection,
+            "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=(rank | ?)",
+            [targetID, rank, rank]
+          );
+          return res.status(200).send({});
+        },
+        () => {
+          res.status(400).send({
+            reason: "UNKNOWN_ERROR",
+          });
+        }
+      )();
 
-      //         return res.status(200).send({});
-      //       }
-      //     );
-      //   } finally {
-      //     connection.release();
-      //   }
-      // });
+      return;
+    }
+    case "DELETE": {
+      const { id: targetID, rank } = req.body;
+
+      if (!idRegex(targetID)) {
+        return res.status(400).send({
+          reason: "UNAVAILABLE_ID",
+        });
+      }
+      await fromdb(
+        pool,
+        async (connection) => {
+          if (!(await isAdminDB(connection, id))) {
+            return res.status(400).send({ reason: "NO_ACCESS" });
+          }
+
+          if (typeof rank !== "number") {
+            return res.status(400).send({ reason: "UNAVAILABLE_RANK" });
+          }
+          console.log(rank);
+          await query(
+            connection,
+            "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=(VALUES(rank) & (~?))",
+            [targetID, rank, rank]
+          );
+
+          return res.status(200).send({});
+        },
+        (err) => {
+          console.error(err);
+          res.status(400).send({
+            reason: "UNKNOWN_ERROR",
+          });
+        }
+      )();
+
+      return;
     }
     default: {
       return res.status(400).send({
@@ -109,6 +170,5 @@ export default async (
     }
   }
 };
-function isEmpty(arg0: Buffer): boolean | PromiseLike<boolean> {
-  throw new Error("Function not implemented.");
-}
+
+export type { IRankData };
