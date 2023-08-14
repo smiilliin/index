@@ -152,6 +152,8 @@ export async function getServerSideProps(context: NextPageContext) {
         refreshToken: refreshToken,
       });
 
+      accessTokenData = jwtParser<IAccessToken>(accessToken);
+
       context.res?.setHeader(
         "Set-Cookie",
         serialize("access-token", accessToken, {
