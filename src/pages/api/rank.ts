@@ -144,10 +144,9 @@ export default async (
           if (typeof rank !== "number") {
             return res.status(400).send({ reason: "UNAVAILABLE_RANK" });
           }
-          console.log(rank);
           await query(
             connection,
-            "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=(VALUES(rank) & (~?))",
+            "INSERT INTO userRank (id, rank) VALUES(?, ?) ON DUPLICATE KEY UPDATE rank=(rank & (~?))",
             [targetID, rank, rank]
           );
 
