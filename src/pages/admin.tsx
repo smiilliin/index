@@ -1,10 +1,12 @@
 import Head from "next/head";
 import {
   Dispatch,
+  MutableRefObject,
   SetStateAction,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import styled from "styled-components";
@@ -48,9 +50,57 @@ const UserMenuContainer = styled.div`
   background-color: var(--second-color);
   border-radius: 10px;
 `;
-const MenuPosition = styled.div`
-  position: relative;
+const MenuContainer = styled.div`
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  z-index: 1;
+  width: 200px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--second-color);
+  border-radius: 10px;
 `;
+
+interface IEMenuPosition {
+  parent?: MutableRefObject<any>;
+  target: MutableRefObject<any>;
+  children: JSX.Element;
+}
+const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
+  const [rect, setRect] = useState<DOMRect>(
+    target.current.getBoundingClientRect()
+  );
+
+  useEffect(() => {
+    const eventListener = () => {
+      setRect(target.current.getBoundingClientRect());
+    };
+    window.addEventListener("resize", eventListener);
+    return () => {
+      window.removeEventListener("resize", eventListener);
+    };
+  }, [target]);
+  const parentRect: DOMRect | undefined =
+    parent?.current.getBoundingClientRect();
+
+  return (
+    <div
+      style={{
+        top: rect.top - (parentRect?.top || 0),
+        left: rect.left - (parentRect?.left || 0),
+        right: rect.right - (parentRect?.right || 0),
+        bottom: rect.bottom - (parentRect?.bottom || 0),
+        width: rect.width,
+        height: rect.height,
+        position: "absolute",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 interface IEUserMenu {
   id: string;
   stringsManager: StringsManager;
@@ -71,9 +121,12 @@ const UserMenu = ({
 }: IEUserMenu) => {
   const [grantMenu, setGrantMenu] = useState<boolean>(false);
   const [revokeMenu, setRevokeMenu] = useState<boolean>(false);
+  const grantButtonRef = useRef(null);
+  const revokeButtonRef = useRef(null);
+  const parentRef = useRef(null);
 
   return (
-    <UserMenuContainer>
+    <UserMenuContainer ref={parentRef}>
       <Link
         onClick={(event) => {
           event.stopPropagation();
@@ -83,6 +136,7 @@ const UserMenu = ({
         {stringsManager.getString("DELETE_USER")}
       </Link>
       <Link
+        ref={grantButtonRef}
         onClick={(event) => {
           event.stopPropagation();
           setGrantMenu(true);
@@ -91,8 +145,18 @@ const UserMenu = ({
         {stringsManager.getString("GRANT_USER")}
       </Link>
 
+      <Link
+        ref={revokeButtonRef}
+        onClick={(event) => {
+          event.stopPropagation();
+          setRevokeMenu(true);
+        }}
+      >
+        {stringsManager.getString("REVOKE_USER")}
+      </Link>
+
       {grantMenu ? (
-        <MenuPosition>
+        <MenuPosition parent={parentRef} target={grantButtonRef}>
           <GrantMenu
             id={id}
             indexAPI={indexAPI}
@@ -105,17 +169,8 @@ const UserMenu = ({
       ) : (
         <></>
       )}
-      <Link
-        onClick={(event) => {
-          event.stopPropagation();
-          setRevokeMenu(true);
-        }}
-      >
-        {stringsManager.getString("REVOKE_USER")}
-      </Link>
-
       {revokeMenu ? (
-        <MenuPosition>
+        <MenuPosition parent={parentRef} target={revokeButtonRef}>
           <RevokeMenu
             id={id}
             indexAPI={indexAPI}
@@ -265,6 +320,7 @@ const User = ({
   indexAPI,
 }: IEUser) => {
   const [userMenu, setUserMenu] = useState<boolean>(false);
+  const buttonRef = useRef(null);
   const { id, rank } = user;
   let rankStrings: string[] = [];
 
@@ -288,6 +344,7 @@ const User = ({
           src={tripledotImage}
           width={30}
           alt="tripledot"
+          ref={buttonRef}
           onClick={(event) => {
             event.stopPropagation();
 
@@ -308,7 +365,7 @@ const User = ({
       </UserContainer>
 
       {userMenu ? (
-        <MenuPosition>
+        <MenuPosition target={buttonRef}>
           <UserMenu
             id={id}
             stringsManager={stringsManager}
@@ -395,6 +452,8 @@ export default ({ accessToken, refreshToken, language, strings }: IEMain) => {
         <CenterContainer>
           <Container
             onScroll={async (event) => {
+              currentCloseMenu.forEach((v) => v());
+
               if (
                 !loading &&
                 page != -1 &&
@@ -441,7 +500,7 @@ import {
 } from "@/front/ranks";
 import Link from "@/components/link";
 import Ranks from "@/components/ranks";
-import userList, { IUser, IUserList } from "./api/user-list";
+import { IUser } from "./api/user-list";
 import { env } from "@/back/env";
 import { IAccessToken, IRefreshToken } from "token-generation";
 import { serialize } from "cookie";
