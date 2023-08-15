@@ -398,8 +398,8 @@ const Container = styled.div`
 `;
 
 interface IEMain {
-  accessToken: string | null;
-  refreshToken: string | null;
+  accessToken: string;
+  refreshToken: string;
   language: string;
   strings: IStrings;
   id: string;
@@ -573,8 +573,8 @@ export async function getServerSideProps(context: NextPageContext) {
 
   return {
     props: {
-      accessToken: accessToken || null,
-      refreshToken: refreshToken || null,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
       language: language,
       id: id || null,
       strings: languageCache(
