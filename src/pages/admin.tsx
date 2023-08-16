@@ -383,7 +383,8 @@ const User = ({
   );
 };
 const Container = styled.div`
-  width: 500px;
+  width: 80%;
+  max-width: 500px;
   max-height: 80%;
   overflow-y: auto;
 
