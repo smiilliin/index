@@ -35,7 +35,7 @@ interface IEMain {
 }
 
 export default ({
-  accessToken,
+  accessToken: _accessToken,
   refreshToken,
   language,
   strings,
@@ -46,6 +46,7 @@ export default ({
   const indexAPI: IndexAPI = useMemo(() => new IndexAPI("/api"), []);
 
   const stringsManager = useMemo(() => new StringsManager(strings), [strings]);
+  const [accessToken, setAccessToken] = useState(_accessToken);
 
   useEffect(() => {
     (async () => {
@@ -60,7 +61,7 @@ export default ({
 
       const tokenKeeper = new TokenKeeper(authAPI, refreshToken, accessToken);
       tokenKeeper.watchAccessToken = (_accessToken) => {
-        accessToken = _accessToken;
+        setAccessToken(_accessToken);
       };
 
       tokenKeeper.setTokenInterval();

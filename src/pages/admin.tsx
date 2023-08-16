@@ -404,7 +404,12 @@ interface IEMain {
   strings: IStrings;
   id: string;
 }
-export default ({ accessToken, refreshToken, language, strings }: IEMain) => {
+export default ({
+  accessToken: _accessToken,
+  refreshToken,
+  language,
+  strings,
+}: IEMain) => {
   const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const indexAPI: IndexAPI = useMemo(() => new IndexAPI("/api"), []);
   const [userList, setUserList] = useState<Array<IUser>>(new Array());
@@ -412,6 +417,7 @@ export default ({ accessToken, refreshToken, language, strings }: IEMain) => {
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
   const stringsManager = new StringsManager(strings);
+  const [accessToken, setAccessToken] = useState(_accessToken);
 
   useEffect(() => {
     (async () => {
@@ -426,7 +432,7 @@ export default ({ accessToken, refreshToken, language, strings }: IEMain) => {
 
       const tokenKeeper = new TokenKeeper(authAPI, refreshToken, accessToken);
       tokenKeeper.watchAccessToken = (_accessToken) => {
-        accessToken = _accessToken;
+        setAccessToken(_accessToken);
       };
 
       tokenKeeper.setTokenInterval();
