@@ -4,7 +4,6 @@ import { Button } from "./button";
 import Ranks from "@/components/ranks";
 
 const NavBar = styled.div`
-  // padding-top: 8px;
   background-color: #121414;
   width: 100vw;
   height: 40px;
@@ -23,10 +22,14 @@ const Buttons = styled.div`
 `;
 const IDRank = styled.div`
   display: flex;
+  overflow: hidden;
   gap: 10px;
 `;
 const ID = styled.span`
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 interface IENavbar {
