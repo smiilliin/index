@@ -6,7 +6,8 @@
   "RECAPTCHA_WRONG": "The RECAPTCHA is wrong.",
   "WRONG_ACCESS": "You tried wrong access.",
   "NO_ACCESS": "You don't have access.",
-  "UNAVILABLE_PAGE": "The page is unavailable.",
+  "UNAVAILABLE_PAGE": "The page is unavailable.",
+  "UNAVAILABLE_PAGE_SIZE": "The page size is unavailable.",
   "UNAVAILABLE_ID": "The ID is unavailable.",
   "UNAVAILABLE_RANK": "The rank is unavailable."
 }

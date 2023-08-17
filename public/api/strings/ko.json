@@ -6,7 +6,8 @@
   "RECAPTCHA_WRONG": "RECAPTCHA가 바르지 않습니다.",
   "WRONG_ACCESS": "잘못된 접근을 했습니다.",
   "NO_ACCESS": "엑세스 권한이 없습니다.",
-  "UNAVAILABLE_TYPE": "페이지가 바르지 않습니다.",
+  "UNAVAILABLE_PAGE": "페이지가 바르지 않습니다.",
+  "UNAVAILABLE_PAGE_SIZE": "페이지 크기가 바르지 않습니다.",
   "UNAVAILABLE_ID": "ID가 바르지 않습니다.",
   "UNAVAILABLE_RANK": "랭크가 바르지 않습니다."
 }

@@ -67,15 +67,6 @@ const Index = ({
       tokenKeeper.setTokenInterval();
     })();
   }, [authAPI]);
-  useEffect(() => {
-    (async () => {
-      if (!indexAPI) return;
-
-      // if (accessToken && ranks.indexOf(String(Rank.ADMIN)) != -1) {
-      //   indexAPI.setRank("smile", Rank.ADMIN | Rank.SUPERTHANKS | Rank.CLOUD);
-      // }
-    })();
-  }, [indexAPI]);
 
   return (
     <>
@@ -168,7 +159,7 @@ export async function getServerSideProps(context: NextPageContext) {
         })
       );
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
   }
   const language =

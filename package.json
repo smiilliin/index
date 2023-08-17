@@ -12,7 +12,7 @@
     "@smiilliin/auth-api": "^1.2.9",
     "cookie": "^0.5.0",
     "dotenv-webpack": "^8.0.1",
-    "fetchstrings": "^1.0.15",
+    "fetchstrings": "^1.0.17",
     "ignore-loader": "^0.1.2",
     "next": "13.1.6",
     "next-cookies": "^2.0.3",

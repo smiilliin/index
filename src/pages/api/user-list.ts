@@ -35,6 +35,13 @@ export default async (
       };
       const { page, pageSize } = getQuery();
 
+      if (isNaN(page) || page < 0) {
+        return res.status(400).send({ reason: "UNAVAILABLE_PAGE" });
+      }
+      if (isNaN(pageSize) || pageSize < 0) {
+        return res.status(400).send({ reason: "UNAVAILABLE_PAGE_SIZE" });
+      }
+
       await fromdb(
         pool,
         async (connection) => {
