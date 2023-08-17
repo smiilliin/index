@@ -51,18 +51,8 @@ interface IEMenuPosition {
   children: JSX.Element;
 }
 const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
-  const [rect, setRect] = useState<DOMRect>(
-    target.current?.getBoundingClientRect() ||
-      ({
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-      } as DOMRect)
+  const [rect, setRect] = useState<DOMRect | undefined>(
+    target.current?.getBoundingClientRect()
   );
 
   useEffect(() => {
@@ -82,12 +72,12 @@ const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
   return (
     <div
       style={{
-        top: rect.top - (parentRect?.top || 0),
-        left: rect.left - (parentRect?.left || 0),
-        right: rect.right - (parentRect?.right || 0),
-        bottom: rect.bottom - (parentRect?.bottom || 0),
-        width: rect.width,
-        height: rect.height,
+        top: (rect?.top || 0) - (parentRect?.top || 0),
+        left: rect?.left || 0 - (parentRect?.left || 0),
+        right: (rect?.right || 0) - (parentRect?.right || 0),
+        bottom: (rect?.bottom || 0) - (parentRect?.bottom || 0),
+        width: rect?.width || 0,
+        height: rect?.height || 0,
         position: "absolute",
       }}
     >
