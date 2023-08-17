@@ -51,7 +51,7 @@ export default ({
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!authAPI) return;
+    setMessage("");
 
     const formData = new FormData(event.target as HTMLFormElement);
     const id = formData.get("id") as string;
