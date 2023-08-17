@@ -2,7 +2,7 @@ import { generation, pool } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import en from "@/../public/api/strings/en.json";
 import { fromdb, query } from "@/back/db";
-import { isAdminDB } from "@/back/rank";
+import { getRank, getRankDB, isAdminDB } from "@/back/rank";
 import { IUser, getUserListDB } from "@/back/userList";
 
 interface IError {
@@ -38,7 +38,7 @@ export default async (
       await fromdb(
         pool,
         async (connection) => {
-          if (!isAdminDB(connection, id)) {
+          if (!(await isAdminDB(connection, id))) {
             return res.status(400).send({ reason: "NO_ACCESS" });
           }
           const userList = await getUserListDB(connection, page, pageSize);
