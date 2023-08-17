@@ -73,7 +73,7 @@ const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
     <div
       style={{
         top: (rect?.top || 0) - (parentRect?.top || 0),
-        left: rect?.left || 0 - (parentRect?.left || 0),
+        left: (rect?.left || 0) - (parentRect?.left || 0),
         right: (rect?.right || 0) - (parentRect?.right || 0),
         bottom: (rect?.bottom || 0) - (parentRect?.bottom || 0),
         width: rect?.width || 0,
@@ -107,10 +107,10 @@ const UserMenu = ({
   const [revokeMenu, setRevokeMenu] = useState<boolean>(false);
   const grantButtonRef = useRef<HTMLAnchorElement>(null);
   const revokeButtonRef = useRef<HTMLAnchorElement>(null);
-  const parentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <UserMenuContainer ref={parentRef}>
+    <UserMenuContainer ref={containerRef}>
       <Link
         onClick={(event) => {
           event.stopPropagation();
@@ -140,7 +140,7 @@ const UserMenu = ({
       </Link>
 
       {grantMenu ? (
-        <MenuPosition parent={parentRef} target={grantButtonRef}>
+        <MenuPosition parent={containerRef} target={grantButtonRef}>
           <GrantMenu
             id={id}
             indexAPI={indexAPI}
@@ -154,7 +154,7 @@ const UserMenu = ({
         <></>
       )}
       {revokeMenu ? (
-        <MenuPosition parent={parentRef} target={revokeButtonRef}>
+        <MenuPosition parent={containerRef} target={revokeButtonRef}>
           <RevokeMenu
             id={id}
             indexAPI={indexAPI}
@@ -412,7 +412,6 @@ const Admin = ({
   }, []);
   useEffect(() => {
     (async () => {
-      if (!authAPI) return;
       if (!refreshToken || !accessToken) return;
 
       const tokenKeeper = new TokenKeeper(authAPI, refreshToken, accessToken);
@@ -424,13 +423,18 @@ const Admin = ({
     })();
   }, [authAPI]);
   useEffect(() => {
-    (async () => {
-      if (!indexAPI) return;
-      if (!accessToken) return;
-      setUserList(await indexAPI.getUserList(page, pageSize));
-      setPage(1);
-    })();
-  }, [indexAPI]);
+    if (page != -1) {
+      indexAPI
+        .getUserList(page, pageSize)
+        .then((newUserList) => {
+          userList.push(...newUserList);
+          setUserList([...userList]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [page]);
 
   return (
     <>
@@ -453,25 +457,18 @@ const Admin = ({
                   event.currentTarget.scrollHeight - 20
               ) {
                 setLoading(true);
-                const loadedUserList = await indexAPI.getUserList(
-                  page,
-                  pageSize
-                );
-                userList.push(...loadedUserList);
-                if (loadedUserList.length == 0) setPage(-1);
-                else setPage(page + 1);
-                setLoading(false);
+                setPage(page + 1);
               }
             }}
           >
-            {userList.map((v) => (
+            {userList.map((v, index) => (
               <User
                 user={v}
                 stringsManager={stringsManager}
                 indexAPI={indexAPI}
                 userList={userList}
                 setUserList={setUserList}
-                key={[v.id, v.rank].join(";")}
+                key={[v.id, index].join(";")}
               ></User>
             ))}
           </Container>
@@ -495,6 +492,7 @@ import { env } from "@/back/env";
 import { IAccessToken, IRefreshToken } from "token-generation";
 import { serialize } from "cookie";
 import { offBits, orOperation } from "@/back/bit";
+import { isAdmin } from "@/back/rank";
 
 export async function getServerSideProps(context: NextPageContext) {
   let { "access-token": accessToken, "refresh-token": refreshToken } =
@@ -559,6 +557,15 @@ export async function getServerSideProps(context: NextPageContext) {
       redirect: {
         permanent: false,
         destination: url.toString(),
+      },
+    };
+  }
+
+  if (!id || !isAdmin(id)) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "https://smiilliin.com",
       },
     };
   }
