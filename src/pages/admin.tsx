@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import {
   Dispatch,
-  MutableRefObject,
   SetStateAction,
   useEffect,
   useMemo,
@@ -47,19 +46,29 @@ const UserMenuContainer = styled.div`
   border-radius: 10px;
 `;
 interface IEMenuPosition {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parent?: MutableRefObject<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  target: MutableRefObject<any>;
+  parent?: React.RefObject<HTMLElement>;
+  target: React.RefObject<HTMLElement>;
   children: JSX.Element;
 }
 const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
   const [rect, setRect] = useState<DOMRect>(
-    target.current.getBoundingClientRect()
+    target.current?.getBoundingClientRect() ||
+      ({
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      } as DOMRect)
   );
 
   useEffect(() => {
     const eventListener = () => {
+      if (!target.current) return;
+
       setRect(target.current.getBoundingClientRect());
     };
     window.addEventListener("resize", eventListener);
@@ -68,7 +77,7 @@ const MenuPosition = ({ parent, target, children }: IEMenuPosition) => {
     };
   }, [target]);
   const parentRect: DOMRect | undefined =
-    parent?.current.getBoundingClientRect();
+    parent?.current?.getBoundingClientRect();
 
   return (
     <div
@@ -106,9 +115,9 @@ const UserMenu = ({
 }: IEUserMenu) => {
   const [grantMenu, setGrantMenu] = useState<boolean>(false);
   const [revokeMenu, setRevokeMenu] = useState<boolean>(false);
-  const grantButtonRef = useRef(null);
-  const revokeButtonRef = useRef(null);
-  const parentRef = useRef(null);
+  const grantButtonRef = useRef<HTMLAnchorElement>(null);
+  const revokeButtonRef = useRef<HTMLAnchorElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   return (
     <UserMenuContainer ref={parentRef}>
