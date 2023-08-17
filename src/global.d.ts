@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 import { Pool } from "mysql";
 
 declare global {

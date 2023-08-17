@@ -2,7 +2,6 @@ import { PoolConnection } from "mysql";
 import { fromdb, query } from "./db";
 import { pool } from "./static";
 import { Rank, getRankFromBuffer } from "@/front/ranks";
-import { andOperation, isEmpty } from "./bit";
 
 interface IUserRankJoin {
   id: string;
@@ -34,7 +33,7 @@ const getUserListDB = async (
   return userList;
 };
 
-const getUserList = fromdb(pool, getUserListDB, new Array());
+const getUserList = fromdb(pool, getUserListDB, []);
 
 export { getUserListDB, getUserList };
 export type { IUser };

@@ -1,9 +1,9 @@
+import React from "react";
 import Head from "next/head";
 import {
   Dispatch,
   MutableRefObject,
   SetStateAction,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -20,10 +20,6 @@ import tripledotImage from "@/images/tripledot.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
 import IndexAPI from "@/front/IndexAPI";
 import Image from "next/image";
-
-const IndirName = styled.span`
-  text-align: left;
-`;
 
 const GrantMenuContainer = styled.div`
   position: absolute;
@@ -50,21 +46,10 @@ const UserMenuContainer = styled.div`
   background-color: var(--second-color);
   border-radius: 10px;
 `;
-const MenuContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  right: 10px;
-  z-index: 1;
-  width: 200px;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--second-color);
-  border-radius: 10px;
-`;
-
 interface IEMenuPosition {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parent?: MutableRefObject<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   target: MutableRefObject<any>;
   children: JSX.Element;
 }
@@ -304,7 +289,7 @@ const UserContainer = styled.div`
   cursor: pointer;
 `;
 
-let currentCloseMenu = new Array<() => void>();
+const currentCloseMenu: Array<() => void> = [];
 interface IEUser {
   user: IUser;
   stringsManager: StringsManager;
@@ -398,22 +383,22 @@ const Container = styled.div`
   }
 `;
 
-interface IEMain {
+interface IEAdmin {
   accessToken: string;
   refreshToken: string;
   language: string;
   strings: IStrings;
   id: string;
 }
-export default ({
+const Admin = ({
   accessToken: _accessToken,
   refreshToken,
   language,
   strings,
-}: IEMain) => {
+}: IEAdmin) => {
   const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const indexAPI: IndexAPI = useMemo(() => new IndexAPI("/api"), []);
-  const [userList, setUserList] = useState<Array<IUser>>(new Array());
+  const [userList, setUserList] = useState<Array<IUser>>([]);
   const pageSize = useMemo(() => 15, []);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -496,14 +481,13 @@ export default ({
     </>
   );
 };
+export default Admin;
 import { languageCache, languageListCache } from "@/front/languageCache";
 import {
   Rank,
-  allRanks,
   allRanksString as allRankStrings,
   getRankFromBuffer,
   getRankStrings,
-  hasRank,
 } from "@/front/ranks";
 import Link from "@/components/link";
 import Ranks from "@/components/ranks";
@@ -557,14 +541,16 @@ export async function getServerSideProps(context: NextPageContext) {
         })
       );
     }
-  } catch {}
+  } catch (err) {
+    console.log(err);
+  }
   const language =
     context.req?.headers["accept-language"]
       ?.split(";")?.[0]
       .split(",")?.[0]
       ?.split("-")?.[0] || "en";
 
-  let id = accessTokenData?.id;
+  const id = accessTokenData?.id;
 
   if (!refreshToken) {
     const url = new URL("https://smiilliin.com/login");
@@ -589,6 +575,6 @@ export async function getServerSideProps(context: NextPageContext) {
           ? language
           : "en"
       ),
-    },
+    } as IEAdmin,
   };
 }

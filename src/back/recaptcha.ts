@@ -12,7 +12,7 @@ const checkRecaptcha = (g_response: string): Promise<boolean> => {
           resolve(json.success);
         });
       })
-      .catch((err) => {
+      .catch(() => {
         resolve(false);
       });
   });

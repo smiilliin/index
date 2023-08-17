@@ -21,15 +21,12 @@ const Title = styled.h2`
   margin-bottom: 10px;
 `;
 
-export default ({
-  refreshToken,
-  language,
-  strings,
-}: {
+interface IESignup {
   refreshToken: string | null;
   language: string;
   strings: IStrings;
-}) => {
+}
+const Signup = ({ refreshToken, language, strings }: IESignup) => {
   const recaptcha = React.useRef<ReCAPTCHA>(null);
   const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const [message, setMessage] = useState<string | undefined>();
@@ -72,25 +69,26 @@ export default ({
       await authAPI.getAccessToken({});
 
       const url = new URL(window.location.toString());
-      try {
-        const nextURLStringEncoded = url.searchParams.get("next");
-        if (nextURLStringEncoded) {
-          const nextURLString = decodeURIComponent(nextURLStringEncoded);
-          const nextURL = new URL(nextURLString);
-          const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
-            nextURL.hostname
-          );
-          if (redirectable) {
-            window.location.href = nextURLString;
-            return;
-          }
+
+      const nextURLStringEncoded = url.searchParams.get("next");
+      if (nextURLStringEncoded) {
+        const nextURLString = decodeURIComponent(nextURLStringEncoded);
+        const nextURL = new URL(nextURLString);
+        const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
+          nextURL.hostname
+        );
+        if (redirectable) {
+          window.location.href = nextURLString;
+          return;
         }
-      } catch {}
+      }
       window.location.href = "/";
-    } catch (err: any) {
-      setMessage(err.message);
-      recaptcha.current?.reset();
-      console.error(err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage(err.message);
+        recaptcha.current?.reset();
+        console.error(err);
+      }
     }
   };
 
@@ -139,6 +137,7 @@ export default ({
     </>
   );
 };
+export default Signup;
 
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
@@ -158,6 +157,6 @@ export async function getServerSideProps(context: NextPageContext) {
           ? language
           : "en"
       ),
-    },
+    } as IESignup,
   };
 }

@@ -1,8 +1,8 @@
 import { generation, pool } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import en from "@/../public/api/strings/en.json";
-import { fromdb, query } from "@/back/db";
-import { getRank, getRankDB, isAdminDB } from "@/back/rank";
+import { fromdb } from "@/back/db";
+import { isAdminDB } from "@/back/rank";
 import { IUser, getUserListDB } from "@/back/userList";
 
 interface IError {

@@ -5,7 +5,7 @@ export default () => {
     fetch(`/api/logout`, {
       method: "GET",
       credentials: "include",
-    }).then((res) => {
+    }).then(() => {
       window.location.href = "/";
     });
   }, []);

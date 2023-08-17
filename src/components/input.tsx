@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Input = styled.input.attrs((props) => ({
+const Input = styled.input.attrs(() => ({
   autoComplete: "off",
 }))`
   border-radius: 10px;

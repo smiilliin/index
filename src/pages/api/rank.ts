@@ -2,7 +2,7 @@ import { generation, idRegex, pool } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import en from "@/../public/api/strings/en.json";
 import { fromdb, query } from "@/back/db";
-import { getRank, getRankDB, isAdminDB } from "@/back/rank";
+import { getRankDB, isAdminDB } from "@/back/rank";
 
 interface IError {
   reason: keyof typeof en;
@@ -11,9 +11,6 @@ interface IRankData {
   rank: string;
 }
 interface ISuccess {}
-interface IRank {
-  rank: Buffer;
-}
 
 export default async (
   req: NextApiRequest,

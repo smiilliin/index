@@ -1,3 +1,4 @@
+import React from "react";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
@@ -25,7 +26,7 @@ const Icons = styled.div`
   flex-direction: row;
   gap: 10px;
 `;
-interface IEMain {
+interface IEIndex {
   accessToken: string | null;
   refreshToken: string | null;
   language: string;
@@ -33,15 +34,14 @@ interface IEMain {
   rankStrings: Array<string>;
   id: string | null;
 }
-
-export default ({
+const Index = ({
   accessToken: _accessToken,
   refreshToken,
   language,
   strings,
   rankStrings,
   id,
-}: IEMain) => {
+}: IEIndex) => {
   const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const indexAPI: IndexAPI = useMemo(() => new IndexAPI("/api"), []);
 
@@ -116,6 +116,7 @@ export default ({
     </>
   );
 };
+export default Index;
 import { languageCache, languageListCache } from "@/front/languageCache";
 import { getRank } from "@/back/rank";
 import { Rank, getRankStrings } from "@/front/ranks";
@@ -167,7 +168,9 @@ export async function getServerSideProps(context: NextPageContext) {
         })
       );
     }
-  } catch {}
+  } catch (err) {
+    console.error(err);
+  }
   const language =
     context.req?.headers["accept-language"]
       ?.split(";")?.[0]
@@ -175,7 +178,7 @@ export async function getServerSideProps(context: NextPageContext) {
       ?.split("-")?.[0] || "en";
 
   let rank: Rank | null = null;
-  let id = accessTokenData?.id;
+  const id = accessTokenData?.id;
 
   if (id) {
     rank = await getRank(id);
@@ -194,6 +197,6 @@ export async function getServerSideProps(context: NextPageContext) {
           : "en"
       ),
       rankStrings: rank ? getRankStrings(rank) : null,
-    },
+    } as IEIndex,
   };
 }

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Button } from "./button";
 import Ranks from "@/components/ranks";
 
-const NavBar = styled.div`
+const NavBarContainer = styled.div`
   background-color: #121414;
   width: 100vw;
   height: 40px;
@@ -36,12 +36,12 @@ interface IENavbar {
   id?: string;
   rankStrings?: Array<string>;
 }
-export default ({ id, rankStrings }: IENavbar) => {
+const NavBar = ({ id, rankStrings }: IENavbar) => {
   return (
-    <NavBar>
+    <NavBarContainer>
       <IDRank>
         <ID>{id}</ID>
-        <Ranks rankStrings={rankStrings || new Array()}></Ranks>
+        <Ranks rankStrings={rankStrings || []}></Ranks>
       </IDRank>
 
       <Buttons>
@@ -53,7 +53,8 @@ export default ({ id, rankStrings }: IENavbar) => {
         )}
         {id && <Button href="/logout">LOGOUT</Button>}
       </Buttons>
-    </NavBar>
+    </NavBarContainer>
   );
 };
+export default NavBar;
 export { ID, IDRank };

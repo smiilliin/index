@@ -1,3 +1,4 @@
+import React from "react";
 import { Rank } from "@/front/ranks";
 import styled from "styled-components";
 import Image from "next/image";
@@ -19,7 +20,7 @@ ranksImage.set("CLOUD", cloud);
 interface IERanks {
   rankStrings: Array<string>;
 }
-export default ({ rankStrings: ranks }: IERanks) => {
+const Ranks = ({ rankStrings: ranks }: IERanks) => {
   return (
     <RanksContainer>
       {ranks.map((rank) => (
@@ -33,3 +34,5 @@ export default ({ rankStrings: ranks }: IERanks) => {
     </RanksContainer>
   );
 };
+
+export default Ranks;

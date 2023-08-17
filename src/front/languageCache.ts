@@ -13,7 +13,7 @@ interface ILanguage {
   [key: string]: string;
 }
 
-let languages = new Map<string, ILanguage>();
+const languages = new Map<string, ILanguage>();
 
 fs.watch(languagesFolder, (event, filename) => {
   languageList = getLanguageList();
@@ -26,7 +26,9 @@ fs.watch(languagesFolder, (event, filename) => {
             fs.readFileSync(`./src/front/strings/${key}.json`).toString("utf-8")
           )
         );
-      } catch {}
+      } catch (err) {
+        console.error(err);
+      }
     }
   });
 });
