@@ -1,16 +1,44 @@
 import React from "react";
-import { Html, Head, Main, NextScript } from "next/document";
+import Document, {
+  Html,
+  Head,
+  Main,
+  NextScript,
+  DocumentContext,
+  DocumentInitialProps,
+} from "next/document";
+import { languageListCache } from "@/front/languageCache";
 
-const Document = () => {
-  return (
-    <Html>
-      <Head />
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
-};
+interface IProps extends DocumentInitialProps {
+  lang?: string;
+}
+class CustomDocument extends Document {
+  static async getInitialProps(ctx: DocumentContext) {
+    const lang =
+      ctx.req?.headers["accept-language"]
+        ?.split(";")?.[0]
+        .split(",")?.[0]
+        ?.split("-")?.[0] || "en";
 
-export default Document;
+    const initialProps = await Document.getInitialProps(ctx);
+
+    return {
+      ...initialProps,
+      lang: languageListCache().includes(lang) ? lang : "en",
+    };
+  }
+
+  render() {
+    return (
+      <Html lang={(this.props as IProps).lang || "en"}>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+
+export default CustomDocument;
