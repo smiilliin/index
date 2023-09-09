@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Dotenv = require("dotenv-webpack");
 
 const nextConfig = {
