@@ -7,7 +7,7 @@ import Document, {
   DocumentContext,
   DocumentInitialProps,
 } from "next/document";
-import { languageListCache } from "@/front/languageCache";
+import { languageListCache, getLanguageList } from "@/front/languageCache";
 
 interface IProps extends DocumentInitialProps {
   lang?: string;
@@ -24,7 +24,11 @@ class CustomDocument extends Document {
 
     return {
       ...initialProps,
-      lang: languageListCache().includes(lang) ? lang : "en",
+      lang: languageListCache().includes(lang)
+        ? lang
+        : getLanguageList().includes(lang)
+        ? lang
+        : "en",
     };
   }
 

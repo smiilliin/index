@@ -44,4 +44,4 @@ const languageCache = (language: string) => {
   }
 };
 
-export { languageListCache, languageCache };
+export { languageListCache, languageCache, getLanguageList };
