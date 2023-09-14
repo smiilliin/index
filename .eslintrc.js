@@ -28,5 +28,6 @@ module.exports = {
   plugins: ["@typescript-eslint", "react"],
   rules: {
     "@typescript-eslint/no-explicit-any": ["off"],
+    "no-constant-condition": 0,
   },
 };
