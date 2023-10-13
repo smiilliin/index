@@ -35,7 +35,7 @@ const loadTokens = async (context: NextPageContext): Promise<ITokens> => {
   }
 
   try {
-    if (needNewAccessToken) {
+    if (needNewAccessToken && refreshToken) {
       const authAPI = new AuthAPI("https://smiilliin.com/api");
 
       accessToken = undefined;
