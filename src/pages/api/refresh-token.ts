@@ -1,8 +1,8 @@
 import { generation } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
-import { env } from "@/back/env";
 import { serialize } from "cookie";
 import en from "@/../public/api/strings/en.json";
+import { cookieDomain } from "@/front/static";
 
 interface IError {
   reason: keyof typeof en;
@@ -41,7 +41,7 @@ export default async (
         "Set-Cookie",
         serialize("refresh-token", updatedTokenString, {
           httpOnly: true,
-          domain: env.cookie_domain,
+          domain: cookieDomain,
           path: "/",
           secure: true,
           expires: keepLoggedin ? new Date(updatedToken.expires) : undefined,

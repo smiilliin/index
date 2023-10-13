@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { env } from "@/back/env";
 import { serialize } from "cookie";
+import { cookieDomain } from "@/front/static";
 
 interface INull {}
 
@@ -12,14 +12,14 @@ export default async (req: NextApiRequest, res: NextApiResponse<INull>) => {
           httpOnly: true,
           expires: new Date(1),
           path: "/",
-          domain: env.cookie_domain,
+          domain: cookieDomain,
           secure: true,
         }),
         serialize("access-token", "", {
           httpOnly: true,
           expires: new Date(1),
           path: "/",
-          domain: env.cookie_domain,
+          domain: cookieDomain,
           secure: true,
         }),
       ]);

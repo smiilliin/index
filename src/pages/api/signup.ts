@@ -1,11 +1,11 @@
 import { generation, idRegex, passwordRegex, pool } from "@/back/static";
 import { NextApiRequest, NextApiResponse } from "next";
 import crypto from "crypto";
-import { env } from "@/back/env";
 import { serialize } from "cookie";
 import { checkRecaptcha } from "@/back/recaptcha";
 import en from "@/../public/api/strings/en.json";
 import { fromdb, query } from "@/back/db";
+import { cookieDomain } from "@/front/static";
 
 interface IError {
   reason: keyof typeof en;
@@ -80,7 +80,7 @@ export default async (
             "Set-Cookie",
             serialize("refresh-token", refreshTokenString, {
               httpOnly: true,
-              domain: env.cookie_domain,
+              domain: cookieDomain,
               path: "/",
               secure: true,
               expires: keepLoggedin
