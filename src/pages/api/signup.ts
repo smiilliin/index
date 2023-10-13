@@ -47,10 +47,18 @@ export default async (
             salt,
             Buffer.from(password, "hex"),
           ]);
-          const hashedPassword = crypto
+          const repeat = Math.floor(Math.random() * 19 + 2); //2 ~ 20
+          let hashedPassword = crypto
             .createHash("sha256")
             .update(saltedPassword)
-            .digest("hex");
+            .digest("binary");
+
+          for (let i = 0; i < repeat; i++) {
+            hashedPassword = crypto
+              .createHash("sha256")
+              .update(Buffer.from(hashedPassword, "binary"))
+              .digest("binary");
+          }
 
           if (
             (await query(connection, "SELECT id FROM user WHERE id=?", [id]))
@@ -64,7 +72,7 @@ export default async (
           await query(connection, "INSERT INTO user VALUES(?, ?, ?)", [
             id,
             salt,
-            Buffer.from(hashedPassword, "hex"),
+            Buffer.from(hashedPassword, "binary"),
           ]);
 
           const refreshToken = await generation.createRefreshToken(id, 20);

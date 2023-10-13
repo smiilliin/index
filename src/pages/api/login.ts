@@ -59,12 +59,25 @@ export default async (
             salt,
             Buffer.from(password, "hex"),
           ]);
-          const hashedPassword = crypto
+          let hashedPassword = crypto
             .createHash("sha256")
             .update(saltedPassword)
-            .digest("hex");
+            .digest("binary");
 
-          if (!dbPassword.equals(Buffer.from(hashedPassword, "hex"))) {
+          let passed = false;
+          for (let i = 0; i < 20; i++) {
+            if (dbPassword.equals(Buffer.from(hashedPassword, "binary"))) {
+              passed = true;
+              break;
+            }
+
+            hashedPassword = crypto
+              .createHash("sha256")
+              .update(Buffer.from(hashedPassword, "binary"))
+              .digest("binary");
+          }
+
+          if (!passed) {
             return res.status(400).send({
               reason: "ID_OR_PASSWORD_WRONG",
             });
