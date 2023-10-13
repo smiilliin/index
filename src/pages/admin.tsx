@@ -335,9 +335,7 @@ const User = ({
               setUserMenu(true);
               const closeMenu = () => {
                 setUserMenu(false);
-                currentCloseMenu.forEach((v) =>
-                  document.removeEventListener("click", v)
-                );
+                document.removeEventListener("click", closeMenu);
               };
               document.addEventListener("click", closeMenu);
               currentCloseMenu.push(closeMenu);
