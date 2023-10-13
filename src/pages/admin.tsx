@@ -429,6 +429,9 @@ const Admin = ({
       indexAPI
         .getUserList(page, pageSize)
         .then((newUserList) => {
+          if (newUserList.length == 0) {
+            return setPage(-1);
+          }
           userList.push(...newUserList);
           setUserList([...userList]);
         })
