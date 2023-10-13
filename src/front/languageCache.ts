@@ -1,4 +1,5 @@
 import fs from "fs";
+import { NextPageContext } from "next";
 
 const languagesFolder = "./src/front/strings";
 
@@ -43,5 +44,13 @@ const languageCache = (language: string) => {
     return languages.get(language);
   }
 };
+const getLanguage = (context: NextPageContext): string => {
+  return (
+    context.req?.headers["accept-language"]
+      ?.split(";")?.[0]
+      .split(",")?.[0]
+      ?.split("-")?.[0] || "en"
+  );
+};
 
-export { languageListCache, languageCache, getLanguageList };
+export { languageListCache, languageCache, getLanguageList, getLanguage };

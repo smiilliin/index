@@ -4,8 +4,6 @@ const env = {
   db_password: process.env.DB_PASSWORD as string,
   db_database: process.env.DB_DATABASE as string,
   recaptcha_key: process.env.RECAPTCHA_KEY as string,
-  cookie_domain: process.env.COOKIE_DOMAIN as string,
-  host: process.env.HOST as string,
 };
 
 for (const [key, value] of Object.entries(env)) {

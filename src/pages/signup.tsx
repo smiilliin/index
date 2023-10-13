@@ -13,7 +13,11 @@ import Message from "@/components/message";
 import { recaptchaPublicKey } from "@/front/static";
 import styled from "styled-components";
 import StringsManager, { IStrings } from "@/front/stringsManager";
-import { languageCache, languageListCache } from "@/front/languageCache";
+import {
+  getLanguage,
+  languageCache,
+  languageListCache,
+} from "@/front/languageCache";
 import Checkbox from "@/components/checkbox";
 
 const Title = styled.h2`
@@ -143,11 +147,7 @@ export default Signup;
 export async function getServerSideProps(context: NextPageContext) {
   const { "refresh-token": refreshToken } = cookies(context);
 
-  const language =
-    context.req?.headers["accept-language"]
-      ?.split(";")?.[0]
-      .split(",")?.[0]
-      ?.split("-")?.[0] || "en";
+  const language = getLanguage(context);
 
   return {
     props: {

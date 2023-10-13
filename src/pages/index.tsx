@@ -4,9 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import CenterContainer from "@/components/centercontainer";
 import { NextPageContext } from "next";
-import cookies from "next-cookies";
 import Navbar from "@/components/navbar";
-import { jwtParser } from "@/front/jwtParser";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
 import smile from "@/images/smile.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
@@ -109,65 +107,20 @@ const Index = ({
   );
 };
 export default Index;
-import { languageCache, languageListCache } from "@/front/languageCache";
+import {
+  getLanguage,
+  languageCache,
+  languageListCache,
+} from "@/front/languageCache";
 import { getRank } from "@/back/rank";
 import { Rank, getRankStrings } from "@/front/ranks";
-import { IAccessToken, IRefreshToken } from "token-generation";
-import { serialize } from "cookie";
-import { env } from "@/back/env";
+import { loadTokens } from "@/front/loadTokens";
 
 export async function getServerSideProps(context: NextPageContext) {
-  let { "access-token": accessToken, "refresh-token": refreshToken } =
-    cookies(context);
-
-  let refreshTokenData: IRefreshToken | undefined;
-  let accessTokenData: IAccessToken | undefined;
-
-  if (refreshToken) {
-    refreshTokenData = jwtParser<IRefreshToken>(refreshToken);
-
-    const refreshTokenExpired = (refreshTokenData?.expires || 0) < Date.now();
-    if (refreshTokenExpired) {
-      refreshToken = undefined;
-    }
-  }
-  let needNewAccessToken: boolean = true;
-  if (accessToken) {
-    accessTokenData = jwtParser<IAccessToken>(accessToken);
-
-    needNewAccessToken = (accessTokenData?.expires || 0) < Date.now();
-  }
-
-  try {
-    if (needNewAccessToken) {
-      const authAPI = new AuthAPI("https://smiilliin.com/api");
-
-      accessToken = undefined;
-      accessToken = await authAPI.getAccessToken({
-        refreshToken: refreshToken,
-      });
-
-      accessTokenData = jwtParser<IAccessToken>(accessToken);
-
-      context.res?.setHeader(
-        "Set-Cookie",
-        serialize("access-token", accessToken, {
-          httpOnly: true,
-          domain: env.cookie_domain,
-          path: "/",
-          secure: true,
-          sameSite: "strict",
-        })
-      );
-    }
-  } catch (err: any) {
-    console.error(err);
-  }
-  const language =
-    context.req?.headers["accept-language"]
-      ?.split(";")?.[0]
-      .split(",")?.[0]
-      ?.split("-")?.[0] || "en";
+  const { accessTokenData, refreshToken, accessToken } = await loadTokens(
+    context
+  );
+  const language = getLanguage(context);
 
   let rank: Rank | null = null;
   const id = accessTokenData?.id;
