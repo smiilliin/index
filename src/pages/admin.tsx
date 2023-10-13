@@ -286,13 +286,14 @@ const UserContainer = styled.div`
   cursor: pointer;
 `;
 
-const currentCloseMenu: Array<() => void> = [];
 interface IEUser {
   user: IUser;
   stringsManager: StringsManager;
   userList: IUser[];
   setUserList: Dispatch<SetStateAction<IUser[]>>;
   indexAPI: IndexAPI;
+  currentCloseMenu: (() => void)[];
+  setCurrentCloseMenu: React.Dispatch<React.SetStateAction<(() => void)[]>>;
 }
 const User = ({
   user,
@@ -300,6 +301,8 @@ const User = ({
   userList,
   setUserList,
   indexAPI,
+  currentCloseMenu,
+  setCurrentCloseMenu,
 }: IEUser) => {
   const [userMenu, setUserMenu] = useState<boolean>(false);
   const buttonRef = useRef(null);
@@ -338,7 +341,7 @@ const User = ({
                 document.removeEventListener("click", closeMenu);
               };
               document.addEventListener("click", closeMenu);
-              currentCloseMenu.push(closeMenu);
+              setCurrentCloseMenu([closeMenu]);
             }
           }}
         ></Image>
@@ -399,6 +402,9 @@ const Admin = ({
   const [loading, setLoading] = useState<boolean>(false);
   const stringsManager = new StringsManager(strings);
   const [accessToken, setAccessToken] = useState(_accessToken);
+  const [currentCloseMenu, setCurrentCloseMenu] = useState<Array<() => void>>(
+    []
+  );
 
   useEffect(() => {
     (async () => {
@@ -445,6 +451,7 @@ const Admin = ({
           <Container
             onScroll={async (event) => {
               currentCloseMenu.forEach((v) => v());
+              setCurrentCloseMenu([]);
 
               if (
                 !loading &&
@@ -465,6 +472,8 @@ const Admin = ({
                 indexAPI={indexAPI}
                 userList={userList}
                 setUserList={setUserList}
+                currentCloseMenu={currentCloseMenu}
+                setCurrentCloseMenu={setCurrentCloseMenu}
                 key={[v.id, index].join(";")}
               ></User>
             ))}
