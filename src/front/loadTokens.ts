@@ -19,12 +19,16 @@ const loadTokens = async (context: NextPageContext): Promise<ITokens> => {
   let refreshTokenData: IRefreshToken | undefined;
   let accessTokenData: IAccessToken | undefined;
 
+  let deleteCookies = false;
+
   if (refreshToken) {
     refreshTokenData = jwtParser<IRefreshToken>(refreshToken);
 
     const refreshTokenExpired = (refreshTokenData?.expires || 0) < Date.now();
     if (refreshTokenExpired) {
       refreshToken = undefined;
+
+      deleteCookies = true;
     }
   }
   let needNewAccessToken: boolean = true;
@@ -58,6 +62,27 @@ const loadTokens = async (context: NextPageContext): Promise<ITokens> => {
     }
   } catch (err) {
     console.error(err);
+  }
+  if (deleteCookies) {
+    context.res?.setHeader(
+      "Set-Cookie",
+      [
+        serialize("refresh-token", "", {
+          httpOnly: true,
+          expires: new Date(1),
+          path: "/",
+          domain: cookieDomain,
+          secure: true,
+        }),
+        serialize("access-token", "", {
+          httpOnly: true,
+          expires: new Date(1),
+          path: "/",
+          domain: cookieDomain,
+          secure: true,
+        }),
+      ].join(";")
+    );
   }
 
   return {
