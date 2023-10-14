@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Head from "next/head";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import CenterContainer from "@/components/centercontainer";
@@ -33,10 +33,26 @@ const Login = ({ refreshToken, language, strings }: IELogin) => {
   const [message, setMessage] = useState<string>();
   const inputStyle = { width: "100%", height: "40px" };
   const stringsManager = useMemo(() => new StringsManager(strings), [strings]);
+  const redirect = useCallback(() => {
+    const url = new URL(window.location.toString());
+    const nextURLStringEncoded = url.searchParams.get("next");
+    if (nextURLStringEncoded) {
+      const nextURLString = decodeURIComponent(nextURLStringEncoded);
+      const nextURL = new URL(nextURLString);
+      const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
+        nextURL.hostname
+      );
+      if (redirectable) {
+        window.location.href = nextURLString;
+        return;
+      }
+    }
+    window.location.href = "/";
+  }, []);
 
   useEffect(() => {
     (async () => {
-      if (refreshToken) window.location.href = "/";
+      if (refreshToken) redirect();
 
       await authAPI.load(language);
     })();
@@ -53,21 +69,7 @@ const Login = ({ refreshToken, language, strings }: IELogin) => {
     try {
       await authAPI.login(id, password, formData.get("keepLoggedin") === "on");
       await authAPI.getAccessToken({});
-
-      const url = new URL(window.location.toString());
-      const nextURLStringEncoded = url.searchParams.get("next");
-      if (nextURLStringEncoded) {
-        const nextURLString = decodeURIComponent(nextURLStringEncoded);
-        const nextURL = new URL(nextURLString);
-        const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
-          nextURL.hostname
-        );
-        if (redirectable) {
-          window.location.href = nextURLString;
-          return;
-        }
-      }
-      window.location.href = "/";
+      redirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setMessage(err.message);

@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import CenterContainer from "@/components/centercontainer";
 import { ButtonInput } from "@/components/button";
 import Form from "@/components/form";
@@ -35,12 +35,28 @@ const Signup = ({ refreshToken, language, strings }: IESignup) => {
   const authAPI: AuthAPI = useMemo(() => new AuthAPI("/api"), []);
   const [message, setMessage] = useState<string | undefined>();
   const inputStyle = { width: "100%", height: "40px" };
+  const redirect = useCallback(() => {
+    const url = new URL(window.location.toString());
+    const nextURLStringEncoded = url.searchParams.get("next");
+    if (nextURLStringEncoded) {
+      const nextURLString = decodeURIComponent(nextURLStringEncoded);
+      const nextURL = new URL(nextURLString);
+      const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
+        nextURL.hostname
+      );
+      if (redirectable) {
+        window.location.href = nextURLString;
+        return;
+      }
+    }
+    window.location.href = "/";
+  }, []);
 
   const stringsManager = new StringsManager(strings);
 
   useEffect(() => {
     (async () => {
-      if (refreshToken) window.location.href = "/";
+      if (refreshToken) redirect();
 
       await authAPI.load(language);
     })();
@@ -72,21 +88,7 @@ const Signup = ({ refreshToken, language, strings }: IESignup) => {
       );
       await authAPI.getAccessToken({});
 
-      const url = new URL(window.location.toString());
-
-      const nextURLStringEncoded = url.searchParams.get("next");
-      if (nextURLStringEncoded) {
-        const nextURLString = decodeURIComponent(nextURLStringEncoded);
-        const nextURL = new URL(nextURLString);
-        const redirectable = /^(?:[\w-]+\.)?smiilliin\.com$/.test(
-          nextURL.hostname
-        );
-        if (redirectable) {
-          window.location.href = nextURLString;
-          return;
-        }
-      }
-      window.location.href = "/";
+      redirect();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setMessage(err.message);
