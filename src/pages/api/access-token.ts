@@ -43,7 +43,7 @@ export default async (
           path: "/",
           secure: true,
           expires: keepLoggedin ? new Date(accessToken.expires) : undefined,
-          sameSite: "strict",
+          sameSite: "lax",
         })
       );
       return res.status(200).send({

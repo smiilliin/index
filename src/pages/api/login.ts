@@ -102,7 +102,7 @@ export default async (
                 ? new Date(refreshToken.expires)
                 : undefined,
               secure: true,
-              sameSite: "strict",
+              sameSite: "lax",
             })
           );
 

@@ -45,7 +45,7 @@ export default async (
           path: "/",
           secure: true,
           expires: keepLoggedin ? new Date(updatedToken.expires) : undefined,
-          sameSite: "strict",
+          sameSite: "lax",
         })
       );
 

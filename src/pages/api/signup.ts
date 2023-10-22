@@ -94,6 +94,7 @@ export default async (
               expires: keepLoggedin
                 ? new Date(refreshToken.expires)
                 : undefined,
+              sameSite: "lax",
             })
           );
 
