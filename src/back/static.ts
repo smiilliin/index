@@ -21,6 +21,8 @@ const newHmacKey = (): Buffer => {
 if (process.env.NODE_ENV === "production") {
   pool = newPool();
   hmacKey = newHmacKey();
+  global.pool = pool;
+  global.hmacKey = hmacKey;
 } else {
   if (!global.pool) {
     pool = newPool();
