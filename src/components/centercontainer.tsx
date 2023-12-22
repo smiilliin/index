@@ -14,5 +14,13 @@ const CenterContainer = styled.div`
     height: -webkit-fill-available;
   }
 `;
+const ColumnCenterContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+`;
 
 export default CenterContainer;
+export { ColumnCenterContainer, CenterContainer };

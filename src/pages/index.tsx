@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useRef } from "react";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import CenterContainer from "@/components/centercontainer";
+import CenterContainer, {
+  ColumnCenterContainer,
+} from "@/components/centercontainer";
 import { NextPageContext } from "next";
 import Navbar from "@/components/navbar";
 import { AuthAPI, TokenKeeper } from "@smiilliin/auth-api";
@@ -10,6 +12,9 @@ import smile from "@/images/smile.svg";
 import StringsManager, { IStrings } from "@/front/stringsManager";
 import IndexAPI from "@/front/IndexAPI";
 import Image from "next/image";
+import DownArrowImage from "@/images/down-arrow.svg";
+import NewSmile from "@/images/new-smile.png";
+import OldSmile from "@/images/old-smile.jpeg";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -51,6 +56,11 @@ const Index = ({
       await authAPI.load(language);
       await indexAPI.load(language);
     })();
+
+    window.onmousemove = (event) => {
+      setMouseX(event.clientX);
+      setMouseY(event.clientY);
+    };
   }, []);
   useEffect(() => {
     (async () => {
@@ -65,6 +75,34 @@ const Index = ({
       tokenKeeper.setTokenInterval();
     })();
   }, [authAPI]);
+  const [mouseX, setMouseX] = useState<number>();
+  const [mouseY, setMouseY] = useState<number>();
+
+  const smileRef = useRef<HTMLImageElement>(null);
+  const oldSmileRef = useRef<HTMLImageElement>(null);
+  const newSmileRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (!smileRef.current || !oldSmileRef.current || !newSmileRef.current)
+      return;
+    if (!mouseX || !mouseY) return;
+
+    const setShadow = (target: HTMLImageElement, color: string) => {
+      const rect = target.getBoundingClientRect();
+      const centerX = (rect.right + rect.left) / 2;
+      const centerY = (rect.bottom + rect.top) / 2;
+
+      const f = (x: number) => 8 * Math.tanh(x / 120);
+
+      target.style.filter = `drop-shadow(${f(mouseX - centerX)}px ${f(
+        mouseY - centerY
+      )}px 4px ${color})`;
+    };
+    setShadow(smileRef.current, "#a1a1a1");
+    setShadow(oldSmileRef.current, "gray");
+    setShadow(newSmileRef.current, "#48392F");
+    // oldSmileRef.current.style.filter = "drop-shadow(5px 5px 4px #48392F)";
+  }, [mouseX, mouseY]);
 
   return (
     <>
@@ -75,13 +113,41 @@ const Index = ({
         <meta name="theme-color" content="#121414" />
         <meta name="description" content="Smile - smiilliin" />
       </Head>
-      <main>
-        <CenterContainer>
-          <Navbar
-            id={id || undefined}
-            rankStrings={rankStrings || undefined}
-          ></Navbar>
-          <Image src={smile} width={200} alt="icon"></Image>
+      <ScrollMain>
+        <Navbar
+          id={id || undefined}
+          rankStrings={rankStrings || undefined}
+        ></Navbar>
+        <CenterContainer style={{ height: "calc(100vh - 20px)" }}>
+          <div
+            style={{
+              position: "relative",
+              marginBottom: "10px",
+            }}
+          >
+            <Image
+              src={NewSmile}
+              width={200}
+              alt="icon"
+              style={{
+                borderRadius: "50%",
+              }}
+            ></Image>
+            <Image
+              src={smile}
+              width={200}
+              className="overlap"
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                zIndex: 1,
+                backgroundColor: "black",
+                borderRadius: "50%",
+              }}
+              alt="icon"
+            ></Image>
+          </div>
           <BigTitle>👋 SMIILLIIN - Smile</BigTitle>
           <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
           <Icons>
@@ -102,7 +168,183 @@ const Index = ({
             </a>
           </Icons>
         </CenterContainer>
-      </main>
+        <ColumnCenterContainer>
+          <Image
+            src={DownArrowImage}
+            width={20}
+            height={20}
+            alt="DownArrow-Image"
+          ></Image>
+        </ColumnCenterContainer>
+        <ColumnCenterContainer
+          style={{
+            paddingTop: "100px",
+            paddingBottom: "100px",
+            minHeight: "100vh",
+          }}
+        >
+          <div style={{ marginBottom: 500 }}>
+            <div style={{ display: "flex", gap: "30px" }}>
+              <Image
+                src={smile}
+                ref={smileRef}
+                width={150}
+                height={150}
+                style={{
+                  borderRadius: "50%",
+                  backgroundColor: "black",
+                }}
+                alt="smile"
+              ></Image>
+              <Image
+                src={OldSmile}
+                ref={oldSmileRef}
+                width={150}
+                height={150}
+                style={{ borderRadius: "50%" }}
+                alt="OldSmile"
+              ></Image>
+              <Image
+                src={NewSmile}
+                ref={newSmileRef}
+                width={150}
+                height={150}
+                style={{ borderRadius: "50%" }}
+                alt="NewSmile"
+              ></Image>
+            </div>
+            <h2 style={{ marginTop: 30 }}>
+              {stringsManager.getString("MOVE_MOUSE")}
+            </h2>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>custom-lifegame</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/custom-lifegame"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/custom-lifegame
+              </Link>
+            </div>
+            <iframe
+              src="/custom-lifegame"
+              style={{ border: 0, width: 1067, height: 600 }}
+            ></iframe>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>balls</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/balls"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/balls
+              </Link>
+            </div>
+            <iframe
+              src="/balls"
+              style={{ border: 0, width: 1067, height: 600 }}
+            ></iframe>
+          </div>
+          <div
+            style={{
+              marginBottom: 100,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <h2>asciiart</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/asciiart"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/asciiart
+              </Link>
+            </div>
+            <Image
+              alt="result.gif"
+              src="/asciiart/result.gif"
+              width={1278}
+              height={700}
+            ></Image>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>mathcard</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/mathcard"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/mathcard
+              </Link>
+            </div>
+            <Image
+              alt="mathcard.png"
+              src="/mathcard/mathcard.png"
+              width={1421}
+              height={791}
+            ></Image>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>mathcard</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/quicklink"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/quicklink
+              </Link>
+            </div>
+            <Image
+              alt="quicklink.png"
+              src="/quicklink/quicklink.png"
+              width={412}
+              height={142}
+            ></Image>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>save-alert</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/save-alert"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/save-alert
+              </Link>
+            </div>
+            <Image
+              alt="save-alert.gif"
+              src="/save-alert/save-alert.gif"
+              width={552}
+              height={310}
+            ></Image>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>sf</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/sf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/sf
+              </Link>
+            </div>
+            <iframe
+              src="/sf"
+              style={{ border: 0, width: 1067, height: 600 }}
+            ></iframe>
+          </div>
+        </ColumnCenterContainer>
+      </ScrollMain>
     </>
   );
 };
@@ -115,6 +357,8 @@ import {
 import { getRank } from "@/back/rank";
 import { Rank, getRankStrings } from "@/front/ranks";
 import { loadTokens } from "@/front/loadTokens";
+import ScrollMain from "@/components/scrollmain";
+import Link from "@/components/link";
 
 export async function getServerSideProps(context: NextPageContext) {
   const { accessTokenData, refreshToken, accessToken } = await loadTokens(

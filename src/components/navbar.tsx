@@ -9,7 +9,7 @@ const NavBarContainer = styled.div`
   height: 40px;
   padding-left: 10px;
   display: grid;
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   grid-template-columns: 1fr calc(

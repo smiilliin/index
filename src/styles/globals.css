@@ -25,3 +25,24 @@ input {
 html {
   background-color: var(--first-color);
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--second-color);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background-color: var(--first-color);
+}
+
+.overlap {
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-in-out;
+}
+.overlap:hover {
+  opacity: 0;
+}

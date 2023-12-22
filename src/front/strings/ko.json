@@ -6,5 +6,6 @@
   "ID_REQUIREMENT": "(4~20자 소문자, 숫자)",
   "DELETE_USER": "사용자 제거하기",
   "GRANT_USER": "사용자 등급 부여하기",
-  "REVOKE_USER": "사용자 등급 박탈하기"
+  "REVOKE_USER": "사용자 등급 박탈하기",
+  "MOVE_MOUSE": "마우스를 움직여 보세요!"
 }
