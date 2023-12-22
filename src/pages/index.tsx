@@ -234,6 +234,24 @@ const Index = ({
             ></iframe>
           </div>
           <div style={{ marginBottom: 100 }}>
+            <h2>classcard-hack</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/classcard-hack"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/classcard-hack
+              </Link>
+            </div>
+            <Image
+              alt="mathcard.png"
+              src="/classcard-hack/score.png"
+              width={895}
+              height={576}
+            ></Image>
+          </div>
+          <div style={{ marginBottom: 100 }}>
             <h2>balls</h2>
             <div>
               <Link
