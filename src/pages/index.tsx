@@ -29,6 +29,12 @@ const Icons = styled.div`
   flex-direction: row;
   gap: 10px;
 `;
+const FitImage = styled.img`
+  max-width: 1000px;
+  width: 100%;
+  object-fit: contain;
+`;
+
 interface IEIndex {
   accessToken: string | null;
   refreshToken: string | null;
@@ -244,28 +250,10 @@ const Index = ({
                 https://github.com/smiilliin/classcard-hack
               </Link>
             </div>
-            <Image
+            <FitImage
               alt="mathcard.png"
               src="/classcard-hack/score.png"
-              width={895}
-              height={576}
-            ></Image>
-          </div>
-          <div style={{ marginBottom: 100 }}>
-            <h2>balls</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/balls"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/balls
-              </Link>
-            </div>
-            <iframe
-              src="/balls"
-              style={{ border: 0, width: 1067, height: 600 }}
-            ></iframe>
+            ></FitImage>
           </div>
           <div
             style={{
@@ -284,12 +272,7 @@ const Index = ({
                 https://github.com/smiilliin/asciiart
               </Link>
             </div>
-            <Image
-              alt="result.gif"
-              src="/asciiart/result.gif"
-              width={1278}
-              height={700}
-            ></Image>
+            <FitImage alt="result.gif" src="/asciiart/result.gif"></FitImage>
           </div>
           <div style={{ marginBottom: 100 }}>
             <h2>mathcard</h2>
@@ -302,15 +285,13 @@ const Index = ({
                 https://github.com/smiilliin/mathcard
               </Link>
             </div>
-            <Image
+            <FitImage
               alt="mathcard.png"
               src="/mathcard/mathcard.png"
-              width={1421}
-              height={791}
-            ></Image>
+            ></FitImage>
           </div>
           <div style={{ marginBottom: 100 }}>
-            <h2>mathcard</h2>
+            <h2>quicklink</h2>
             <div>
               <Link
                 href="https://github.com/smiilliin/quicklink"
@@ -320,12 +301,10 @@ const Index = ({
                 https://github.com/smiilliin/quicklink
               </Link>
             </div>
-            <Image
+            <FitImage
               alt="quicklink.png"
               src="/quicklink/quicklink.png"
-              width={412}
-              height={142}
-            ></Image>
+            ></FitImage>
           </div>
           <div style={{ marginBottom: 100 }}>
             <h2>save-alert</h2>
@@ -338,12 +317,45 @@ const Index = ({
                 https://github.com/smiilliin/save-alert
               </Link>
             </div>
-            <Image
+            <FitImage
               alt="save-alert.gif"
               src="/save-alert/save-alert.gif"
-              width={552}
-              height={310}
-            ></Image>
+            ></FitImage>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>balls</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/balls"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/balls
+              </Link>
+            </div>
+            <iframe
+              src="/balls"
+              style={{ border: 0, width: 1067, height: 600 }}
+            ></iframe>
+          </div>
+          <div style={{ marginBottom: 100 }}>
+            <h2>shoot</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/shoot"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/shoot
+              </Link>
+            </div>
+            <Link
+              href="https://smiilliin.com/shoot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FitImage alt="shoot.png" src="/shoot/shoot.png"></FitImage>
+            </Link>
           </div>
           <div style={{ marginBottom: 100 }}>
             <h2>sf</h2>
