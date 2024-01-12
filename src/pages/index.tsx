@@ -34,6 +34,35 @@ const FitImage = styled.img`
   width: 100%;
   object-fit: contain;
 `;
+const FitIframeContainer = styled.div`
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  aspect-ratio: 16 / 9;
+  position: relative;
+`;
+const FitIframeEmbed = styled.iframe`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+`;
+interface IEFitIframe {
+  src: string;
+}
+const FitIframe = ({ src }: IEFitIframe) => {
+  return (
+    <FitIframeContainer>
+      <FitIframeEmbed src={src}></FitIframeEmbed>
+    </FitIframeContainer>
+  );
+};
+const RepositoryContainer = styled.div`
+  width: 100%;
+`;
 
 interface IEIndex {
   accessToken: string | null;
@@ -187,9 +216,12 @@ const Index = ({
             paddingTop: "100px",
             paddingBottom: "100px",
             minHeight: "100vh",
+            width: "100%",
+            gap: "300px",
+            justifyContent: "center",
           }}
         >
-          <div style={{ marginBottom: 500 }}>
+          <div>
             <div style={{ display: "flex", gap: "30px" }}>
               <Image
                 src={smile}
@@ -223,7 +255,20 @@ const Index = ({
               {stringsManager.getString("MOVE_MOUSE")}
             </h2>
           </div>
-          <div style={{ marginBottom: 100 }}>
+          <RepositoryContainer>
+            <h2>collision</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/collision"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/collision
+              </Link>
+            </div>
+            <FitIframe src="/collision"></FitIframe>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>custom-lifegame</h2>
             <div>
               <Link
@@ -234,12 +279,9 @@ const Index = ({
                 https://github.com/smiilliin/custom-lifegame
               </Link>
             </div>
-            <iframe
-              src="/custom-lifegame"
-              style={{ border: 0, width: 1067, height: 600 }}
-            ></iframe>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+            <FitIframe src="/custom-lifegame"></FitIframe>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>classcard-hack</h2>
             <div>
               <Link
@@ -254,14 +296,8 @@ const Index = ({
               alt="mathcard.png"
               src="/classcard-hack/score.png"
             ></FitImage>
-          </div>
-          <div
-            style={{
-              marginBottom: 100,
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>asciiart</h2>
             <div>
               <Link
@@ -273,8 +309,8 @@ const Index = ({
               </Link>
             </div>
             <FitImage alt="result.gif" src="/asciiart/result.gif"></FitImage>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>mathcard</h2>
             <div>
               <Link
@@ -289,8 +325,8 @@ const Index = ({
               alt="mathcard.png"
               src="/mathcard/mathcard.png"
             ></FitImage>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>quicklink</h2>
             <div>
               <Link
@@ -302,11 +338,12 @@ const Index = ({
               </Link>
             </div>
             <FitImage
+              style={{ maxWidth: "350px" }}
               alt="quicklink.png"
               src="/quicklink/quicklink.png"
             ></FitImage>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>save-alert</h2>
             <div>
               <Link
@@ -318,11 +355,12 @@ const Index = ({
               </Link>
             </div>
             <FitImage
+              style={{ maxWidth: "750px" }}
               alt="save-alert.gif"
               src="/save-alert/save-alert.gif"
             ></FitImage>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>balls</h2>
             <div>
               <Link
@@ -337,8 +375,8 @@ const Index = ({
               src="/balls"
               style={{ border: 0, width: 1067, height: 600 }}
             ></iframe>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>shoot</h2>
             <div>
               <Link
@@ -356,8 +394,8 @@ const Index = ({
             >
               <FitImage alt="shoot.png" src="/shoot/shoot.png"></FitImage>
             </Link>
-          </div>
-          <div style={{ marginBottom: 100 }}>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>sf</h2>
             <div>
               <Link
@@ -368,11 +406,8 @@ const Index = ({
                 https://github.com/smiilliin/sf
               </Link>
             </div>
-            <iframe
-              src="/sf"
-              style={{ border: 0, width: 1067, height: 600 }}
-            ></iframe>
-          </div>
+            <FitIframe src="/sf"></FitIframe>
+          </RepositoryContainer>
         </ColumnCenterContainer>
       </ScrollMain>
     </>

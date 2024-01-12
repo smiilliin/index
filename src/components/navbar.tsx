@@ -16,6 +16,7 @@ const NavBarContainer = styled.div`
       (var(--button-width) + var(--button-margin) * 2) * 2
     );
   align-items: center;
+  z-index: 1;
 `;
 const Buttons = styled.div`
   text-align: right;
