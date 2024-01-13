@@ -269,6 +269,19 @@ const Index = ({
             <FitIframe src="/collision"></FitIframe>
           </RepositoryContainer>
           <RepositoryContainer>
+            <h2>ballinball</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/ballinball"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/ballinball
+              </Link>
+            </div>
+            <FitIframe src="/ballinball"></FitIframe>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>custom-lifegame</h2>
             <div>
               <Link
@@ -371,10 +384,7 @@ const Index = ({
                 https://github.com/smiilliin/balls
               </Link>
             </div>
-            <iframe
-              src="/balls"
-              style={{ border: 0, width: 1067, height: 600 }}
-            ></iframe>
+            <FitIframe src="/balls"></FitIframe>
           </RepositoryContainer>
           <RepositoryContainer>
             <h2>shoot</h2>
