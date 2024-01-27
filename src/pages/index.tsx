@@ -282,6 +282,19 @@ const Index = ({
             <FitIframe src="/ballinball"></FitIframe>
           </RepositoryContainer>
           <RepositoryContainer>
+            <h2>cozywall</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/cozywall"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/cozywall
+              </Link>
+            </div>
+            <FitIframe src="/cozywall"></FitIframe>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>custom-lifegame</h2>
             <div>
               <Link
