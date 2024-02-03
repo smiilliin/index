@@ -256,6 +256,19 @@ const Index = ({
             </h2>
           </div>
           <RepositoryContainer>
+            <h2>domain-coloring</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/domain-coloring"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/domain-coloring
+              </Link>
+            </div>
+            <FitIframe src="/domain-coloring"></FitIframe>
+          </RepositoryContainer>
+          <RepositoryContainer>
             <h2>collision</h2>
             <div>
               <Link
