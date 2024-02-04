@@ -19,8 +19,8 @@ const Balls = () => {
             margin: 0;
             padding: 0;
             width: 100vw;
-            height: 100vh;
-            padding-bottom: 50px;
+            height: calc(100vh - 50px);
+            margin-bottom: 50px;
             background-color: black;
           }
           canvas {
