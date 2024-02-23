@@ -319,7 +319,7 @@ const Index = ({
               </Link>
             </div>
             <FitImage
-              alt="mathcard.png"
+              alt="score.png"
               src="/classcard-hack/score.png"
             ></FitImage>
           </RepositoryContainer>
@@ -335,6 +335,44 @@ const Index = ({
               </Link>
             </div>
             <FitImage alt="result.gif" src="/asciiart/result.gif"></FitImage>
+          </RepositoryContainer>
+          <RepositoryContainer>
+            <h2>NOPF-(core, server)</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/nopf-core"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/nopf-core
+              </Link>
+            </div>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/nopf-server"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/nopf-server
+              </Link>
+            </div>
+            <FitImage alt="nopf-core.png" src="/nopf/nopf-core.png"></FitImage>
+          </RepositoryContainer>
+          <RepositoryContainer>
+            <h2>token-generation</h2>
+            <div>
+              <Link
+                href="https://github.com/smiilliin/token-generation"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                https://github.com/smiilliin/token-generation
+              </Link>
+            </div>
+            <FitImage
+              alt="token.png"
+              src="/token-generation/token.png"
+            ></FitImage>
           </RepositoryContainer>
           <RepositoryContainer>
             <h2>mathcard</h2>
