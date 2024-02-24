@@ -244,7 +244,7 @@ const Index = ({
     {
       name: "NOPF-(core, server)",
       description:
-        "Converts an image to a string ASCII string image, or displays the screen as a string image in real time.",
+        "Instead of connecting via port forwarding, connect using TCP hole punching.",
       links: [
         "https://github.com/smiilliin/nopf-core",
         "https://github.com/smiilliin/nopf-server",
