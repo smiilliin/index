@@ -443,7 +443,7 @@ const Index = ({
                   {repository.links.map((link) => (
                     <div key={link}>
                       <Link
-                        href="https://github.com/smiilliin/domain-coloring"
+                        href={link}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
