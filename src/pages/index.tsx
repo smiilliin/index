@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import CenterContainer, {
   ColumnCenterContainer,
 } from "@/components/centercontainer";
@@ -15,6 +15,16 @@ import Image from "next/image";
 import DownArrowImage from "@/images/down-arrow.svg";
 import NewSmile from "@/images/new-smile.png";
 import OldSmile from "@/images/old-smile.jpeg";
+import {
+  getLanguage,
+  languageCache,
+  languageListCache,
+} from "@/front/languageCache";
+import { getRank } from "@/back/rank";
+import { Rank, getRankStrings } from "@/front/ranks";
+import { loadTokens } from "@/front/loadTokens";
+import ScrollMain from "@/components/scrollmain";
+import Link from "@/components/link";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -50,6 +60,38 @@ const FitIframeEmbed = styled.iframe`
   height: 100%;
   border: 0;
 `;
+// const DownArrow = styled.image.attrs(() => ({ src: DownArrowImage }))`
+//   width: 30px;
+//   height: 30px;
+// `;
+const DownArrowKeyframe = keyframes`
+  0% {
+    translate: 0px 0px;
+    scale: 1;
+  }
+  50% {
+    translate: 0px 10px;
+    scale: 1.5;
+  }
+`;
+const DownArrowContainer = styled.div`
+  width: 30px;
+  height: 30px;
+  animation: ${DownArrowKeyframe} 1s ease-in-out infinite;
+`;
+const DownArrow = () => {
+  return (
+    <DownArrowContainer>
+      <Image
+        src={DownArrowImage}
+        width={0}
+        height={0}
+        style={{ width: "100%", height: "100%" }}
+        alt="DownArrow"
+      ></Image>
+    </DownArrowContainer>
+  );
+};
 interface IEFitIframe {
   src: string;
 }
@@ -63,6 +105,21 @@ const FitIframe = ({ src }: IEFitIframe) => {
 const RepositoryContainer = styled.div`
   width: 100%;
 `;
+interface IRepository {
+  name: string;
+  description: string;
+  links: string[];
+}
+interface IImageRepository extends IRepository {
+  type: "image";
+  src: string;
+  alt?: string;
+  maxWidth?: number;
+}
+interface IIFrameRepository extends IRepository {
+  type: "iframe";
+  src: string;
+}
 
 interface IEIndex {
   accessToken: string | null;
@@ -136,8 +193,132 @@ const Index = ({
     setShadow(smileRef.current, "#a1a1a1");
     setShadow(oldSmileRef.current, "gray");
     setShadow(newSmileRef.current, "#48392F");
-    // oldSmileRef.current.style.filter = "drop-shadow(5px 5px 4px #48392F)";
   }, [mouseX, mouseY]);
+  const repositories: (IImageRepository | IIFrameRepository)[] = [
+    {
+      name: "domain-coloring",
+      description: "A program that shows complex function domain coloring",
+      links: ["https://github.com/smiilliin/domain-coloring"],
+      src: "/domain-coloring",
+      type: "iframe",
+    },
+    {
+      name: "collision",
+      description: "elastic collision simulation",
+      links: ["https://github.com/smiilliin/collision"],
+      src: "/collision",
+      type: "iframe",
+    },
+    {
+      name: "ballinball",
+      description: "simulation of a small ball colliding inside a big ball",
+      links: ["https://github.com/smiilliin/ballinball"],
+      src: "/ballinball",
+      type: "iframe",
+    },
+    {
+      name: "custom-lifegame",
+      description:
+        "Life game where you can change the live, death, and tickSpeed values",
+      links: ["https://github.com/smiilliin/custom-lifegame"],
+      src: "/custom-lifegame",
+      type: "iframe",
+    },
+    {
+      name: "classcard-hack",
+      description: "classcard message hacking",
+      links: ["https://github.com/smiilliin/classcard-hack"],
+      src: "/classcard-hack/score.png",
+      alt: "score.png",
+      type: "image",
+    },
+    {
+      name: "asciiart",
+      description:
+        "Converts an image to a string ASCII string image, or displays the screen as a string image in real time.",
+      links: ["https://github.com/smiilliin/asciiart"],
+      src: "/asciiart/result.gif",
+      alt: "result.gif",
+      type: "image",
+    },
+    {
+      name: "NOPF-(core, server)",
+      description:
+        "Converts an image to a string ASCII string image, or displays the screen as a string image in real time.",
+      links: [
+        "https://github.com/smiilliin/nopf-core",
+        "https://github.com/smiilliin/nopf-server",
+      ],
+      src: "/nopf/nopf-core.png",
+      alt: "nopf-core.png",
+      type: "image",
+      maxWidth: 650,
+    },
+    {
+      name: "token-generation",
+      description: "Disable the refresh token",
+      links: ["https://github.com/smiilliin/token-generation"],
+      src: "/token-generation/token.png",
+      alt: "token.png",
+      type: "image",
+      maxWidth: 550,
+    },
+    {
+      name: "mathcard",
+      description: "solve math problem easily",
+      links: ["https://github.com/smiilliin/mathcard"],
+      src: "/mathcard/mathcard.png",
+      alt: "mathcard.png",
+      type: "image",
+    },
+    {
+      name: "quicklink",
+      description: "solve math problem easily",
+      links: ["https://github.com/smiilliin/quicklink"],
+      src: "/quicklink/quicklink.png",
+      alt: "quicklink.png",
+      type: "image",
+      maxWidth: 350,
+    },
+    {
+      name: "cozywall",
+      description: "a cozy wallpaper program",
+      links: ["https://github.com/smiilliin/cozywall"],
+      src: "/cozywall",
+      type: "iframe",
+    },
+    {
+      name: "save-alert",
+      description: "This program helps you remember to save.",
+      links: ["https://github.com/smiilliin/save-alert"],
+      src: "/save-alert/save-alert.gif",
+      type: "image",
+      alt: "save-alert.gif",
+      maxWidth: 750,
+    },
+    {
+      name: "balls",
+      description: "floating balls on the screen",
+      links: ["https://github.com/smiilliin/balls"],
+      src: "/cozywall",
+      type: "iframe",
+    },
+    {
+      name: "shoot",
+      description: "simple shooting game",
+      links: ["https://github.com/smiilliin/shoot"],
+      src: "/shoot/shoot.png",
+      type: "image",
+      alt: "shoot.png",
+    },
+    {
+      name: "sf",
+      description: "simple format",
+      links: ["https://github.com/smiilliin/sf"],
+      src: "/sf",
+      type: "iframe",
+    },
+  ];
 
   return (
     <>
@@ -153,7 +334,7 @@ const Index = ({
           id={id || undefined}
           rankStrings={rankStrings || undefined}
         ></Navbar>
-        <CenterContainer style={{ height: "calc(100vh - 20px)" }}>
+        <CenterContainer style={{ height: "calc(100vh - 50px)" }}>
           <div
             style={{
               position: "relative",
@@ -195,6 +376,9 @@ const Index = ({
             <a href="https://instagram.com/smiilliin">
               <img src="https://instagram.com/favicon.ico" width="30px" />
             </a>
+            <a href="https://velog.io/@smiilliin/">
+              <img src="https://velog.io/favicon.ico" width="30px" />
+            </a>
             <a href="mailto:smiilliindeveloper@gamil.com">
               <img
                 src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
@@ -204,12 +388,7 @@ const Index = ({
           </Icons>
         </CenterContainer>
         <ColumnCenterContainer>
-          <Image
-            src={DownArrowImage}
-            width={20}
-            height={20}
-            alt="DownArrow-Image"
-          ></Image>
+          <DownArrow></DownArrow>
         </ColumnCenterContainer>
         <ColumnCenterContainer
           style={{
@@ -255,249 +434,44 @@ const Index = ({
               {stringsManager.getString("MOVE_MOUSE")}
             </h2>
           </div>
-          <RepositoryContainer>
-            <h2>domain-coloring</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/domain-coloring"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/domain-coloring
-              </Link>
-            </div>
-            <FitIframe src="/domain-coloring"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>collision</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/collision"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/collision
-              </Link>
-            </div>
-            <FitIframe src="/collision"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>ballinball</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/ballinball"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/ballinball
-              </Link>
-            </div>
-            <FitIframe src="/ballinball"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>custom-lifegame</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/custom-lifegame"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/custom-lifegame
-              </Link>
-            </div>
-            <FitIframe src="/custom-lifegame"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>classcard-hack</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/classcard-hack"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/classcard-hack
-              </Link>
-            </div>
-            <FitImage
-              alt="score.png"
-              src="/classcard-hack/score.png"
-            ></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>asciiart</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/asciiart"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/asciiart
-              </Link>
-            </div>
-            <FitImage alt="result.gif" src="/asciiart/result.gif"></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>NOPF-(core, server)</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/nopf-core"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/nopf-core
-              </Link>
-            </div>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/nopf-server"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/nopf-server
-              </Link>
-            </div>
-            <FitImage alt="nopf-core.png" src="/nopf/nopf-core.png"></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>token-generation</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/token-generation"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/token-generation
-              </Link>
-            </div>
-            <FitImage
-              alt="token.png"
-              src="/token-generation/token.png"
-            ></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>mathcard</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/mathcard"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/mathcard
-              </Link>
-            </div>
-            <FitImage
-              alt="mathcard.png"
-              src="/mathcard/mathcard.png"
-            ></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>quicklink</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/quicklink"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/quicklink
-              </Link>
-            </div>
-            <FitImage
-              style={{ maxWidth: "350px" }}
-              alt="quicklink.png"
-              src="/quicklink/quicklink.png"
-            ></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>cozywall</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/cozywall"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/cozywall
-              </Link>
-            </div>
-            <FitIframe src="/cozywall"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>save-alert</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/save-alert"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/save-alert
-              </Link>
-            </div>
-            <FitImage
-              style={{ maxWidth: "750px" }}
-              alt="save-alert.gif"
-              src="/save-alert/save-alert.gif"
-            ></FitImage>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>balls</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/balls"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/balls
-              </Link>
-            </div>
-            <FitIframe src="/balls"></FitIframe>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>shoot</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/shoot"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/shoot
-              </Link>
-            </div>
-            <Link
-              href="https://smiilliin.com/shoot"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FitImage alt="shoot.png" src="/shoot/shoot.png"></FitImage>
-            </Link>
-          </RepositoryContainer>
-          <RepositoryContainer>
-            <h2>sf</h2>
-            <div>
-              <Link
-                href="https://github.com/smiilliin/sf"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://github.com/smiilliin/sf
-              </Link>
-            </div>
-            <FitIframe src="/sf"></FitIframe>
-          </RepositoryContainer>
+          {repositories.map((repository) => {
+            return (
+              <RepositoryContainer key={repository.name}>
+                <div style={{ marginBottom: 10 }}>
+                  <h2>{repository.name}</h2>
+                  <h4>{repository.description}</h4>
+                  {repository.links.map((link) => (
+                    <div key={link}>
+                      <Link
+                        href="https://github.com/smiilliin/domain-coloring"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {link}
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                {repository.type == "iframe" ? (
+                  <FitIframe src={repository.src}></FitIframe>
+                ) : (
+                  <FitImage
+                    src={repository.src}
+                    alt={repository.alt}
+                    style={{ maxWidth: repository.maxWidth }}
+                  ></FitImage>
+                )}
+              </RepositoryContainer>
+            );
+            // }
+            // return <></>;
+          })}
         </ColumnCenterContainer>
       </ScrollMain>
     </>
   );
 };
 export default Index;
-import {
-  getLanguage,
-  languageCache,
-  languageListCache,
-} from "@/front/languageCache";
-import { getRank } from "@/back/rank";
-import { Rank, getRankStrings } from "@/front/ranks";
-import { loadTokens } from "@/front/loadTokens";
-import ScrollMain from "@/components/scrollmain";
-import Link from "@/components/link";
 
 export async function getServerSideProps(context: NextPageContext) {
   const { accessTokenData, refreshToken, accessToken } = await loadTokens(
