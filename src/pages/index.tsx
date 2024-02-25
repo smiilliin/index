@@ -306,7 +306,7 @@ const Index = ({
     {
       name: "shoot",
       description: "simple shooting game",
-      links: ["https://github.com/smiilliin/shoot"],
+      links: ["https://github.com/smiilliin/shoot", "https://smiilliin/shoot"],
       src: "/shoot/shoot.png",
       type: "image",
       alt: "shoot.png",
