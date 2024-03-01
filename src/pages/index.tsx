@@ -25,6 +25,10 @@ import { Rank, getRankStrings } from "@/front/ranks";
 import { loadTokens } from "@/front/loadTokens";
 import ScrollMain from "@/components/scrollmain";
 import Link from "@/components/link";
+import Github from "@/icons/github.svg";
+import Gmail from "@/icons/gmail.ico";
+import Instagram from "@/icons/instagram.ico";
+import Velog from "@/icons/velog.ico";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -300,7 +304,7 @@ const Index = ({
       name: "balls",
       description: "floating balls on the screen",
       links: ["https://github.com/smiilliin/balls"],
-      src: "/cozywall",
+      src: "/balls",
       type: "iframe",
     },
     {
@@ -371,22 +375,16 @@ const Index = ({
           <SmallTitle>{stringsManager.getString("HELLO")}</SmallTitle>
           <Icons>
             <a href="https://github.com/smiilliin">
-              <img
-                src="https://github.githubassets.com/favicons/favicon-dark.svg"
-                width="30px"
-              />
+              <Image src={Github} width={30} alt="github"></Image>
             </a>
             <a href="https://instagram.com/smiilliin">
-              <img src="https://instagram.com/favicon.ico" width="30px" />
+              <Image src={Instagram} width={30} alt="instagram"></Image>
             </a>
             <a href="https://velog.io/@smiilliin/">
-              <img src="https://velog.io/favicon.ico" width="30px" />
+              <Image src={Velog} width={30} alt="velog"></Image>
             </a>
             <a href="mailto:smiilliindeveloper@gamil.com">
-              <img
-                src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico"
-                width="30px"
-              />
+              <Image src={Gmail} width={30} alt="gmail"></Image>
             </a>
           </Icons>
         </CenterContainer>
