@@ -7,6 +7,7 @@ const Input = styled.input.attrs(() => ({
   border: var(--second-color) solid 1px;
   width: 100px;
   background-color: transparent;
+  outline: none;
 `;
 
 export default Input;

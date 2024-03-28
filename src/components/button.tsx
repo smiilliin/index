@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const buttonStyle = `
+const ButtonStyle = `
   border-radius: 10px;
   width: var(--button-width);
   height: 25px;
@@ -18,10 +18,10 @@ const buttonStyle = `
   }
 `;
 const Button = styled.a`
-  ${buttonStyle}
+  ${ButtonStyle}
 `;
 const ButtonInput = styled.input`
-  ${buttonStyle}
+  ${ButtonStyle}
 `;
 
-export { Button, ButtonInput };
+export { Button, ButtonInput, ButtonStyle };
