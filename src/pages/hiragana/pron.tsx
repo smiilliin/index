@@ -39,7 +39,7 @@ const SelectButton = styled.button`
   width: 45px;
   height: 45px;
   font-weight: 500;
-  font-size: 40px;
+  font-size: 30px;
 `;
 
 const EventContainer = styled.span`
@@ -86,6 +86,7 @@ const Hiragana = () => {
   const [selectList, setSelectList] = useState<[string, string][]>([]);
 
   const [pickEvent, setPickEvent] = useState<boolean | null>(null);
+  const [eventTimeout, setEventTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const pickCard = useCallback(
     (card: [string, string], ignore?: boolean) => {
@@ -98,9 +99,14 @@ const Hiragana = () => {
       }
 
       if (!ignore) {
-        setTimeout(() => {
-          setPickEvent(null);
-        }, 1000);
+        if (eventTimeout) clearTimeout(eventTimeout);
+
+        setEventTimeout(
+          setTimeout(() => {
+            setPickEvent(null);
+            setEventTimeout(null);
+          }, 1000)
+        );
       }
 
       if (
