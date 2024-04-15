@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import styled from "styled-components";
 import CenterContainer from "@/components/centercontainer";
-import { DoneModal, hiraganaData } from ".";
+import { DoneModal, hiraganaData, hiraganaTtakData } from ".";
 import { ButtonStyle } from "@/components/button";
+import { useSearchParams } from "next/navigation";
 
 const Container = styled.div`
   display: grid;
@@ -19,7 +20,7 @@ const Container = styled.div`
   padding-bottom: 30px;
 `;
 const PronunP = styled.p`
-  font-size: 50px;
+  font-size: 80px;
 `;
 const BottomContainer = styled.div`
   width: 100%;
@@ -66,8 +67,19 @@ const Bad = styled(EventDisplayer)`
 `;
 
 const Hiragana = () => {
+  const params = useSearchParams();
+
   const [cards, cardsCount, cardsCopy] = useMemo(() => {
-    const hiragana = Object.entries(hiraganaData);
+    const flag = Number(params.get("flag") || 0);
+    let hiragana: [string, string][] = [];
+
+    if (flag & (1 << 0)) {
+      hiragana = Object.entries(hiraganaData);
+    }
+    if (flag & (1 << 1)) {
+      hiragana = [...hiragana, ...Object.entries(hiraganaTtakData)];
+    }
+
     const result = [];
 
     while (hiragana.length != 0) {
@@ -77,7 +89,7 @@ const Hiragana = () => {
       hiragana.splice(pickIndex, 1);
     }
     return [result, result.length, [...result]];
-  }, [hiraganaData]);
+  }, [hiraganaData, params, hiraganaTtakData]);
   const [currentCard, setCurrentCard] = useState<[string, string]>(["", ""]);
 
   const [progress, setProgress] = useState(0);
@@ -90,7 +102,7 @@ const Hiragana = () => {
 
   const pickCard = useCallback(
     (card: [string, string], ignore?: boolean) => {
-      if (card[0] != currentCard[0]) {
+      if (card[1] != currentCard[1]) {
         failedCard.push(currentCard);
         setFailedCard([...failedCard]);
         if (!ignore) setPickEvent(false);
@@ -113,12 +125,12 @@ const Hiragana = () => {
         (((progress - 1) % 10) + 1 == 10 || progress == cardsCount) &&
         failedCard.length != 0
       ) {
-        setCurrentCard(failedCard[0]);
+        setCurrentCard([...failedCard[0]]);
         failedCard.splice(0, 1);
         setFailedCard([...failedCard]);
       } else {
         if (cards.length == 0) return;
-        setCurrentCard(cards[0]);
+        setCurrentCard([...cards[0]]);
         cards.splice(0, 1);
         setProgress(progress + 1);
       }
@@ -142,7 +154,7 @@ const Hiragana = () => {
 
   useEffect(() => {
     pickCard(currentCard, true);
-  }, []);
+  }, [cards]);
 
   return (
     <>
@@ -164,7 +176,7 @@ const Hiragana = () => {
       <main>
         <CenterContainer>
           <Progress>
-            {progress}/{cardsCount}
+            {progress}/{cardsCount} - {Math.floor((progress - 1) / 10) + 1}세트
           </Progress>
           <Container>
             {pickEvent != null ? (

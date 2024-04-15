@@ -8,7 +8,8 @@ import React, {
 import Head from "next/head";
 import styled from "styled-components";
 import CenterContainer from "@/components/centercontainer";
-import { DoneModal, Hider, hiraganaData } from ".";
+import { DoneModal, Hider, hiraganaData, hiraganaTtakData } from ".";
+import { useSearchParams } from "next/navigation";
 
 const Container = styled.div`
   display: grid;
@@ -48,6 +49,8 @@ const Tool = styled.span`
   user-select: none;
   cursor: pointer;
   height: 10%;
+  transition-property: color;
+  transition-duration: 0.4s;
 `;
 const HiraganaContainer = styled.div`
   width: 100%;
@@ -68,9 +71,15 @@ const NextContainer = styled.span`
   cursor: pointer;
 `;
 const Button = styled.span`
-  font-size: 35px;
+  font-size: 45px;
   font-weight: 500;
   user-select: none;
+`;
+const DoneButton = styled(Button)`
+  color: green;
+`;
+const CancelButton = styled(Button)`
+  color: red;
 `;
 const Progress = styled.p`
   font-size: 40px;
@@ -108,8 +117,19 @@ const Hiragana = () => {
 
   const [opened, setOpened] = useState(false);
 
+  const params = useSearchParams();
+
   const [cards, cardsCount] = useMemo(() => {
-    const hiragana = Object.entries(hiraganaData);
+    const flag = Number(params.get("flag") || 0);
+    let hiragana: [string, string][] = [];
+
+    if (flag & (1 << 0)) {
+      hiragana = Object.entries(hiraganaData);
+    }
+    if (flag & (1 << 1)) {
+      hiragana = [...hiragana, ...Object.entries(hiraganaTtakData)];
+    }
+
     const result = [];
 
     while (hiragana.length != 0) {
@@ -119,7 +139,7 @@ const Hiragana = () => {
       hiragana.splice(pickIndex, 1);
     }
     return [result, result.length];
-  }, [hiraganaData]);
+  }, [hiraganaData, params, hiraganaTtakData]);
   const [currentCard, setCurrentCard] = useState<[string, string]>(["", ""]);
 
   const [progress, setProgress] = useState(0);
@@ -170,7 +190,7 @@ const Hiragana = () => {
 
   useEffect(() => {
     pickCard(true);
-  }, []);
+  }, [cards]);
 
   return (
     <>
@@ -192,19 +212,21 @@ const Hiragana = () => {
       <main>
         <CenterContainer>
           <Progress>
-            {progress}/{cardsCount}
+            {progress}/{cardsCount} - {Math.floor((progress - 1) / 10) + 1}세트
           </Progress>
           <Container>
             <CanvasContainer>
               <Tool
                 className="material-symbols-outlined"
                 onClick={() => setPen(true)}
+                style={{ color: pen ? "skyblue" : "white" }}
               >
                 edit
               </Tool>
               <Tool
                 className="material-symbols-outlined"
                 onClick={() => setPen(false)}
+                style={{ color: !pen ? "skyblue" : "white" }}
               >
                 ink_eraser
               </Tool>
@@ -296,18 +318,18 @@ const Hiragana = () => {
               <HiraganaP>{currentCard[0]}</HiraganaP>
             </HiraganaContainer>
             <NextContainer>
-              <Button
+              <DoneButton
                 className="material-symbols-outlined"
                 onClick={() => pickCard(true)}
               >
                 done
-              </Button>
-              <Button
+              </DoneButton>
+              <CancelButton
                 className="material-symbols-outlined"
                 onClick={() => pickCard(false)}
               >
                 close
-              </Button>
+              </CancelButton>
             </NextContainer>
           </Container>
         </CenterContainer>

@@ -1,7 +1,7 @@
 import CenterContainer from "@/components/centercontainer";
 import Link from "@/components/link";
 import Head from "next/head";
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Modal from "react-modal";
 
@@ -9,15 +9,73 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 40px;
-  padding: 50px;
+  padding-top: 50px;
+  padding-bottom: 20px;
 `;
 const Title = styled.p`
   font-size: 30px;
   margin-bottom: 20px;
   font-weight: 800;
 `;
+const Background1 = styled.p`
+  position: fixed;
+  left: max(15px, 3vw);
+  top: 20vh;
+  font-size: 150px;
+  transform: rotate(-15deg);
+`;
+const Background2 = styled.p`
+  position: fixed;
+  right: max(25px, 5vw);
+  top: 40vh;
+  font-size: 80px;
+  transform: rotate(15deg);
+`;
 
 const Index = () => {
+  const hiraganaRef = useRef<HTMLInputElement>(null);
+  const ttakRef = useRef<HTMLInputElement>(null);
+  const [currentText, setCurrentText] = useState("ひ");
+  const [currentPron, setCurrentPron] = useState("hi");
+
+  useEffect(() => {
+    const allHiragana = [
+      ...Object.keys(hiraganaData),
+      ...Object.keys(hiraganaTtakData),
+    ];
+    const allHiraganaPron = [
+      ...Object.values(hiraganaData),
+      ...Object.values(hiraganaTtakData),
+    ];
+
+    const interval = setInterval(() => {
+      const index = Math.floor(Math.random() * allHiragana.length);
+      setCurrentText(allHiragana[index]);
+      setCurrentPron(allHiraganaPron[index]);
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [setCurrentText]);
+
+  const redirectTo = (link: string) => {
+    let flag = 0;
+
+    if (hiraganaRef.current?.checked) {
+      flag |= 1 << 0;
+    }
+    if (ttakRef.current?.checked) {
+      flag |= 1 << 1;
+    }
+    if (flag == 0) {
+      alert("아무것도 선택하지 않을 수 없습니다.");
+      return;
+    }
+
+    window.location.href = `${link}?flag=${flag}`;
+  };
+
   return (
     <>
       <Head>
@@ -32,12 +90,30 @@ user-scalable=0"
         <meta name="description" content="Smile - smiilliin" />
       </Head>
       <main>
+        <Background1>{currentText}</Background1>
+        <Background2>{currentPron}</Background2>
         <CenterContainer>
           <Title>히라가나 공부하기</Title>
           <Container>
-            <Link href="/hiragana/pron">발음</Link>
-            <Link href="/hiragana/hiragana">히라가나</Link>
-            <Link href="/hiragana/write">쓰기</Link>
+            <Link onClick={() => redirectTo("/hiragana/pron")}>발음</Link>
+            <Link onClick={() => redirectTo("/hiragana/hiragana")}>
+              히라가나
+            </Link>
+            <Link onClick={() => redirectTo("/hiragana/write")}>쓰기</Link>
+          </Container>
+          <Container>
+            <label>
+              <input
+                type="checkbox"
+                ref={hiraganaRef}
+                defaultChecked={true}
+              ></input>
+              <span>히라가나</span>
+            </label>
+            <label>
+              <input type="checkbox" ref={ttakRef}></input>
+              <span>탁음&반탁음</span>
+            </label>
           </Container>
         </CenterContainer>
       </main>
@@ -49,6 +125,25 @@ interface IEDoneModal {
   isOpen: boolean;
 }
 const DoneModal = ({ isOpen }: IEDoneModal) => {
+  const hiraganaRef = useRef<HTMLInputElement>(null);
+  const ttakRef = useRef<HTMLInputElement>(null);
+  const redirectTo = (link: string) => {
+    let flag = 0;
+
+    if (hiraganaRef.current?.checked) {
+      flag |= 1 << 0;
+    }
+    if (ttakRef.current?.checked) {
+      flag |= 1 << 1;
+    }
+    if (flag == 0) {
+      alert("아무것도 선택하지 않을 수 없습니다.");
+      return;
+    }
+
+    window.location.href = `${link}?flag=${flag}`;
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -62,7 +157,7 @@ const DoneModal = ({ isOpen }: IEDoneModal) => {
         },
         content: {
           width: 500,
-          height: 250,
+          height: 300,
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",
@@ -81,13 +176,27 @@ const DoneModal = ({ isOpen }: IEDoneModal) => {
       shouldCloseOnOverlayClick={false}
     >
       <div>
-        <h2>학습을 완료했습니다</h2>
+        <h2>학습을 완료했습니다🔥</h2>
         <Link onClick={() => location.reload()}>새로고침</Link>
       </div>
       <Container>
-        <Link href="/hiragana/pron">발음</Link>
-        <Link href="/hiragana/hiragana">히라가나</Link>
-        <Link href="/hiragana/write">쓰기</Link>
+        <Link onClick={() => redirectTo("/hiragana/pron")}>발음</Link>
+        <Link onClick={() => redirectTo("/hiragana/hiragana")}>히라가나</Link>
+        <Link onClick={() => redirectTo("/hiragana/write")}>쓰기</Link>
+      </Container>
+      <Container>
+        <label>
+          <input
+            type="checkbox"
+            ref={hiraganaRef}
+            defaultChecked={true}
+          ></input>
+          <span>히라가나</span>
+        </label>
+        <label>
+          <input type="checkbox" ref={ttakRef}></input>
+          <span>탁음&반탁음</span>
+        </label>
       </Container>
     </Modal>
   );
@@ -214,9 +323,36 @@ const hiraganaData = {
   ろ: "ro",
   わ: "wa",
   を: "o",
-  ん: "N",
+  ん: "n",
+};
+const hiraganaTtakData = {
+  が: "ga",
+  ぎ: "gi",
+  ぐ: "gu",
+  げ: "ge",
+  ご: "go",
+  ざ: "za",
+  じ: "ji",
+  ず: "zu",
+  ぜ: "ze",
+  ぞ: "zo",
+  だ: "da",
+  ぢ: "ji",
+  づ: "zu",
+  で: "de",
+  ど: "do",
+  ば: "ba",
+  び: "bi",
+  ぶ: "bu",
+  べ: "be",
+  ぼ: "bo",
+  ぱ: "pa",
+  ぴ: "pi",
+  ぷ: "pu",
+  ぺ: "pe",
+  ぽ: "po",
 };
 
 export default Index;
 
-export { hiraganaData };
+export { hiraganaData, hiraganaTtakData };
