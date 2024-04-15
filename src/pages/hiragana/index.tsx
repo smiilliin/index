@@ -23,6 +23,9 @@ const Background1 = styled.p`
   top: 20vh;
   font-size: 150px;
   transform: rotate(-15deg);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
 `;
 const Background2 = styled.p`
   position: fixed;
@@ -30,6 +33,9 @@ const Background2 = styled.p`
   top: 40vh;
   font-size: 80px;
   transform: rotate(15deg);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.15;
 `;
 
 const Index = () => {
@@ -322,7 +328,7 @@ const hiraganaData = {
   れ: "re",
   ろ: "ro",
   わ: "wa",
-  を: "o",
+  を: "wo",
   ん: "n",
 };
 const hiraganaTtakData = {

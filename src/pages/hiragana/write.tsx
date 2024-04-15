@@ -66,12 +66,13 @@ const NextContainer = styled.span`
   padding: 10px;
   position: absolute;
   right: 10px;
+  top: 20%;
   background-color: var(--second-color);
   border-radius: 50%;
   cursor: pointer;
 `;
 const Button = styled.span`
-  font-size: 45px;
+  font-size: 45px !important;
   font-weight: 500;
   user-select: none;
 `;
@@ -146,6 +147,7 @@ const Hiragana = () => {
   const [failedCard, setFailedCard] = useState<[string, string][]>([]);
 
   const hiderRef = useRef<HTMLDivElement>(null);
+  const [done, setDone] = useState(false);
 
   const pickCard = useCallback(
     (success: boolean) => {
@@ -158,11 +160,20 @@ const Hiragana = () => {
         (((progress - 1) % 10) + 1 == 10 || progress == cardsCount) &&
         failedCard.length != 0
       ) {
+        if (failedCard.length == 0) {
+          setDone(true);
+          return;
+        }
+
         setCurrentCard(failedCard[0]);
         failedCard.splice(0, 1);
         setFailedCard([...failedCard]);
       } else {
-        if (cards.length == 0) return;
+        if (cards.length == 0) {
+          setDone(true);
+          return;
+        }
+
         setCurrentCard(cards[0]);
         cards.splice(0, 1);
         setProgress(progress + 1);
@@ -189,6 +200,8 @@ const Hiragana = () => {
   );
 
   useEffect(() => {
+    if (cards.length == 0) return;
+
     pickCard(true);
   }, [cards]);
 
@@ -212,7 +225,8 @@ const Hiragana = () => {
       <main>
         <CenterContainer>
           <Progress>
-            {progress}/{cardsCount} - {Math.floor((progress - 1) / 10) + 1}세트
+            {progress - failedCard.length}/{cardsCount} -{" "}
+            {Math.floor((progress - 1) / 10) + 1}세트
           </Progress>
           <Container>
             <CanvasContainer>
@@ -232,14 +246,15 @@ const Hiragana = () => {
               </Tool>
               <Tool
                 className="material-symbols-outlined"
-                onClick={() =>
+                onClick={() => {
                   canvasCtx?.clearRect(
                     0,
                     0,
                     canvasRef?.current?.clientWidth || 0,
                     canvasRef?.current?.clientHeight || 0
-                  )
-                }
+                  );
+                  setPen(true);
+                }}
               >
                 delete
               </Tool>
@@ -292,7 +307,7 @@ const Hiragana = () => {
                     canvasCtx.arc(
                       mousePos.x,
                       mousePos.y,
-                      16,
+                      32,
                       0,
                       Math.PI * 2,
                       false
@@ -333,9 +348,7 @@ const Hiragana = () => {
             </NextContainer>
           </Container>
         </CenterContainer>
-        <DoneModal
-          isOpen={cards.length == 0 && failedCard.length == 0}
-        ></DoneModal>
+        <DoneModal isOpen={done}></DoneModal>
       </main>
     </>
   );

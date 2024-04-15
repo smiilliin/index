@@ -56,7 +56,7 @@ const EventContainer = styled.span`
   cursor: pointer;
 `;
 const EventDisplayer = styled.span`
-  font-size: 70px;
+  font-size: 70px !important;
   font-weight: 600;
 `;
 const Good = styled(EventDisplayer)`
@@ -99,6 +99,7 @@ const Hiragana = () => {
 
   const [pickEvent, setPickEvent] = useState<boolean | null>(null);
   const [eventTimeout, setEventTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [done, setDone] = useState(false);
 
   const pickCard = useCallback(
     (card: [string, string], ignore?: boolean) => {
@@ -125,11 +126,20 @@ const Hiragana = () => {
         (((progress - 1) % 10) + 1 == 10 || progress == cardsCount) &&
         failedCard.length != 0
       ) {
+        if (failedCard.length == 0) {
+          setDone(true);
+          return;
+        }
+
         setCurrentCard([...failedCard[0]]);
         failedCard.splice(0, 1);
         setFailedCard([...failedCard]);
       } else {
-        if (cards.length == 0) return;
+        if (cards.length == 0) {
+          setDone(true);
+          return;
+        }
+
         setCurrentCard([...cards[0]]);
         cards.splice(0, 1);
         setProgress(progress + 1);
@@ -153,6 +163,8 @@ const Hiragana = () => {
   }, [currentCard, cardsCopy, setSelectList]);
 
   useEffect(() => {
+    if (cards.length == 0) return;
+
     pickCard(currentCard, true);
   }, [cards]);
 
@@ -176,7 +188,8 @@ const Hiragana = () => {
       <main>
         <CenterContainer>
           <Progress>
-            {progress}/{cardsCount} - {Math.floor((progress - 1) / 10) + 1}세트
+            {progress - failedCard.length}/{cardsCount} -{" "}
+            {Math.floor((progress - 1) / 10) + 1}세트
           </Progress>
           <Container>
             {pickEvent != null ? (
@@ -226,9 +239,7 @@ const Hiragana = () => {
             </BottomContainer>
           </Container>
         </CenterContainer>
-        <DoneModal
-          isOpen={cards.length == 0 && failedCard.length == 0}
-        ></DoneModal>
+        <DoneModal isOpen={done}></DoneModal>
       </main>
     </>
   );
