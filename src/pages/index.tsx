@@ -207,6 +207,23 @@ const Index = ({
       type: "iframe",
     },
     {
+      name: "gaussian-simulator",
+      description:
+        "Approximate a discrete distribution to a Gaussian distribution",
+      links: ["https://github.com/smiilliin/gaussian-simulator"],
+      src: "/gaussian-simulator",
+      type: "iframe",
+    },
+    {
+      name: "hiragana-learn",
+      description: "Learn hiragana easily",
+      links: [
+        "https://github.com/smiilliin/index/tree/master/src/pages/hiragana",
+      ],
+      src: "/hiragana",
+      type: "iframe",
+    },
+    {
       name: "collision",
       description: "elastic collision simulation",
       links: ["https://github.com/smiilliin/collision"],
@@ -218,14 +235,6 @@ const Index = ({
       description: "simulation of a small ball colliding inside a big ball",
       links: ["https://github.com/smiilliin/ballinball"],
       src: "/ballinball",
-      type: "iframe",
-    },
-    {
-      name: "custom-lifegame",
-      description:
-        "Life game where you can change the live, death, and tickSpeed values",
-      links: ["https://github.com/smiilliin/custom-lifegame"],
-      src: "/custom-lifegame",
       type: "iframe",
     },
     {
@@ -268,6 +277,14 @@ const Index = ({
       maxWidth: 550,
     },
     {
+      name: "custom-lifegame",
+      description:
+        "Life game where you can change the live, death, and tickSpeed values",
+      links: ["https://github.com/smiilliin/custom-lifegame"],
+      src: "/custom-lifegame",
+      type: "iframe",
+    },
+    {
       name: "mathcard",
       description: "solve math problem easily",
       links: ["https://github.com/smiilliin/mathcard"],
@@ -287,9 +304,13 @@ const Index = ({
     {
       name: "cozywall",
       description: "a cozy wallpaper program",
-      links: ["https://github.com/smiilliin/cozywall"],
-      src: "/cozywall",
-      type: "iframe",
+      links: [
+        "https://github.com/smiilliin/cozywall",
+        "https://smiilliin.com/cozywall",
+      ],
+      alt: "cozywall.gif",
+      src: "/cozywall/cozywall.gif",
+      type: "image",
     },
     {
       name: "save-alert",
