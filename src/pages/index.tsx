@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import styled, { keyframes } from "styled-components";
@@ -29,6 +29,9 @@ import Github from "@/icons/github.svg";
 import Gmail from "@/icons/gmail.ico";
 import Instagram from "@/icons/instagram.ico";
 import Velog from "@/icons/velog.ico";
+import { ButtonStyle } from "@/components/button";
+import GitHubCalendar from "react-github-calendar";
+import NIT from "@/images/nit.png";
 
 const BigTitle = styled.h1`
   color: var(--title-color);
@@ -106,6 +109,28 @@ const FitIframe = ({ src }: IEFitIframe) => {
     </FitIframeContainer>
   );
 };
+const PageButton = styled.button`
+  ${ButtonStyle}
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+`;
+const PageButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
+const NITContainer = styled.div`
+  width: 100%;
+  max-width: 600px;
+  height: 200px;
+  display: flex;
+  flex-direction: row;
+  margin-top: 200px;
+  margin-bottom: 200px;
+  align-items: center;
+  gap: 20px;
+`;
 const RepositoryContainer = styled.div`
   width: 100%;
 `;
@@ -177,9 +202,15 @@ const Index = ({
   const smileRef = useRef<HTMLImageElement>(null);
   const oldSmileRef = useRef<HTMLImageElement>(null);
   const newSmileRef = useRef<HTMLImageElement>(null);
+  const nitRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (!smileRef.current || !oldSmileRef.current || !newSmileRef.current)
+    if (
+      !smileRef.current ||
+      !oldSmileRef.current ||
+      !newSmileRef.current ||
+      !nitRef.current
+    )
       return;
     if (!mouseX || !mouseY) return;
 
@@ -197,6 +228,7 @@ const Index = ({
     setShadow(smileRef.current, "#a1a1a1");
     setShadow(oldSmileRef.current, "gray");
     setShadow(newSmileRef.current, "#48392F");
+    setShadow(nitRef.current, "#a6122c");
   }, [mouseX, mouseY]);
   const repositories: (IImageRepository | IIFrameRepository)[] = [
     {
@@ -215,29 +247,6 @@ const Index = ({
       type: "iframe",
     },
     {
-      name: "hiragana-learn",
-      description: "Learn hiragana easily",
-      links: [
-        "https://github.com/smiilliin/index/tree/master/src/pages/hiragana",
-      ],
-      src: "/hiragana",
-      type: "iframe",
-    },
-    {
-      name: "collision",
-      description: "elastic collision simulation",
-      links: ["https://github.com/smiilliin/collision"],
-      src: "/collision",
-      type: "iframe",
-    },
-    {
-      name: "ballinball",
-      description: "simulation of a small ball colliding inside a big ball",
-      links: ["https://github.com/smiilliin/ballinball"],
-      src: "/ballinball",
-      type: "iframe",
-    },
-    {
       name: "classcard-hack",
       description: "classcard message hacking",
       links: ["https://github.com/smiilliin/classcard-hack"],
@@ -246,13 +255,17 @@ const Index = ({
       type: "image",
     },
     {
-      name: "asciiart",
+      name: "workwatch-learning",
       description:
-        "Converts an image to a string ASCII string image, or displays the screen as a string image in real time.",
-      links: ["https://github.com/smiilliin/asciiart"],
-      src: "/asciiart/result.gif",
-      alt: "result.gif",
+        "This is the work period and work time prediction algorithm to be included in WorkWatch",
+      links: [
+        "https://github.com/smiilliin/workwatch-learning",
+        "https://velog.io/@smiilliin/주기-시간-예측-알고리즘",
+      ],
+      src: "/workwatch-learning/screenshot.png",
+      alt: "screenshot.png",
       type: "image",
+      maxWidth: 550,
     },
     {
       name: "NOPF-(core, server)",
@@ -268,13 +281,74 @@ const Index = ({
       maxWidth: 650,
     },
     {
+      name: "asciiart",
+      description:
+        "Converts an image to a string ASCII string image, or displays the screen as a string image in real time.",
+      links: ["https://github.com/smiilliin/asciiart"],
+      src: "/asciiart/result.gif",
+      alt: "result.gif",
+      type: "image",
+    },
+    {
+      name: "genetic-algorithm",
+      description: "Genetic algorithm library",
+      links: [
+        "https://github.com/smiilliin/genetic-algorithm",
+        "https://www.npmjs.com/package/@smiilliin/genetic-algorithm",
+      ],
+      src: "/genetic-algorithm/screenshot.png",
+      alt: "screenshot.png",
+      type: "image",
+      maxWidth: 550,
+    },
+    {
       name: "token-generation",
       description: "Disable the refresh token",
-      links: ["https://github.com/smiilliin/token-generation"],
+      links: [
+        "https://github.com/smiilliin/token-generation",
+        "https://velog.io/@smiilliin/token-generation-구조",
+        "https://www.npmjs.com/package/token-generation",
+      ],
       src: "/token-generation/token.png",
       alt: "token.png",
       type: "image",
       maxWidth: 550,
+    },
+    {
+      name: "school-lunch",
+      description: "upload school lunch to instagram",
+      links: [
+        "https://github.com/smiilliin/school-lunch",
+        "https://www.instagram.com/neungjulunch/",
+      ],
+      src: "/school-lunch/screenshot.png",
+      alt: "screenshot.png",
+      type: "image",
+      maxWidth: 550,
+    },
+
+    {
+      name: "hiragana-learn",
+      description: "Learn hiragana easily",
+      links: [
+        "https://github.com/smiilliin/index/tree/master/src/pages/hiragana",
+      ],
+      src: "/hiragana",
+      type: "iframe",
+    },
+    {
+      name: "ballinball",
+      description: "simulation of a small ball colliding inside a big ball",
+      links: ["https://github.com/smiilliin/ballinball"],
+      src: "/ballinball",
+      type: "iframe",
+    },
+    {
+      name: "collision",
+      description: "elastic collision simulation",
+      links: ["https://github.com/smiilliin/collision"],
+      src: "/collision",
+      type: "iframe",
     },
     {
       name: "custom-lifegame",
@@ -294,7 +368,7 @@ const Index = ({
     },
     {
       name: "quicklink",
-      description: "solve math problem easily",
+      description: "Quickly opens links",
       links: ["https://github.com/smiilliin/quicklink"],
       src: "/quicklink/quicklink.png",
       alt: "quicklink.png",
@@ -347,6 +421,15 @@ const Index = ({
       type: "iframe",
     },
   ];
+  const [page, setPage] = useState<number>(0);
+  const repositoriesContainer = useRef<HTMLDivElement>(null);
+  const changePage = useCallback(
+    (newPage: number) => {
+      setPage(newPage);
+      repositoriesContainer.current?.scrollIntoView();
+    },
+    [setPage]
+  );
 
   return (
     <>
@@ -415,10 +498,8 @@ const Index = ({
         <ColumnCenterContainer
           style={{
             paddingTop: "100px",
-            paddingBottom: "100px",
-            minHeight: "100vh",
+            paddingBottom: "300px",
             width: "100%",
-            gap: "300px",
             justifyContent: "center",
           }}
         >
@@ -456,7 +537,29 @@ const Index = ({
               {stringsManager.getString("MOVE_MOUSE")}
             </h2>
           </div>
-          {repositories.map((repository) => {
+          <NITContainer>
+            <Image src={NIT} alt="nit icon" ref={nitRef}></Image>
+            <div style={{ textAlign: "left" }}>
+              <h2>2023~2024 NIT</h2>
+              <h4>Neungju Institute of Technology</h4>
+              <Link href="https://www.instagram.com/2024._.nit">
+                @2024._.nit
+              </Link>
+            </div>
+          </NITContainer>
+          <GitHubCalendar username="smiilliin" colorScheme="dark" />
+        </ColumnCenterContainer>
+        <ColumnCenterContainer
+          style={{
+            paddingBottom: "100px",
+            minHeight: "100vh",
+            width: "100%",
+            gap: "300px",
+            justifyContent: "center",
+          }}
+          ref={repositoriesContainer}
+        >
+          {repositories.slice(page * 5, (page + 1) * 5).map((repository) => {
             return (
               <RepositoryContainer key={repository.name}>
                 <div style={{ marginBottom: 10 }}>
@@ -485,9 +588,21 @@ const Index = ({
                 )}
               </RepositoryContainer>
             );
-            // }
-            // return <></>;
           })}
+          <PageButtonContainer>
+            {new Array(Math.floor((repositories.length - 1) / 5 + 1))
+              .fill(0)
+              .map((_, i) => i + 1)
+              .map((i) => (
+                <PageButton
+                  key={i}
+                  style={page == i - 1 ? { backgroundColor: "skyblue" } : {}}
+                  onClick={() => changePage(i - 1)}
+                >
+                  {i}
+                </PageButton>
+              ))}
+          </PageButtonContainer>
         </ColumnCenterContainer>
       </ScrollMain>
     </>
