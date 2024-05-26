@@ -268,6 +268,13 @@ const Index = ({
       maxWidth: 550,
     },
     {
+      name: "relativity-simulator",
+      description: "Special Relativity Simulator",
+      links: ["https://github.com/smiilliin/relativity-simulator"],
+      src: "/relativity-simulator",
+      type: "iframe",
+    },
+    {
       name: "NOPF-(core, server)",
       description:
         "Instead of connecting via port forwarding, connect using TCP hole punching.",
