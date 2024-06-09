@@ -241,9 +241,13 @@ const Index = ({
     {
       name: "deep-bricks",
       description: "Deep-learning with bricks and modules",
-      links: ["https://github.com/smiilliin/deep-bricks"],
-      src: "/deep-bricks",
-      type: "iframe",
+      links: [
+        "https://github.com/smiilliin/deep-bricks",
+        "https://smiilliin.com/deep-bricks",
+      ],
+      src: "/deep-bricks/screenshot.png",
+      type: "image",
+      alt: "screenshot.png",
     },
     {
       name: "classcard-hack",

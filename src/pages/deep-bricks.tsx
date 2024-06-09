@@ -6,7 +6,6 @@ const DeepBricks = () => {
   return (
     <>
       <Script src="/deep-bricks/bundle.js" async />
-      <Script src="/preventScroll.js" async />
       <script></script>
       <Head>
         <style>{`
