@@ -239,11 +239,10 @@ const Index = ({
       type: "iframe",
     },
     {
-      name: "gaussian-simulator",
-      description:
-        "Approximate a discrete distribution to a Gaussian distribution",
-      links: ["https://github.com/smiilliin/gaussian-simulator"],
-      src: "/gaussian-simulator",
+      name: "deep-bricks",
+      description: "Deep-learning with bricks and modules",
+      links: ["https://github.com/smiilliin/deep-bricks"],
+      src: "/deep-bricks",
       type: "iframe",
     },
     {
@@ -253,6 +252,13 @@ const Index = ({
       src: "/classcard-hack/score.png",
       alt: "score.png",
       type: "image",
+    },
+    {
+      name: "relativity-simulator",
+      description: "Special Relativity Simulator",
+      links: ["https://github.com/smiilliin/relativity-simulator"],
+      src: "/relativity-simulator",
+      type: "iframe",
     },
     {
       name: "workwatch-learning",
@@ -268,10 +274,11 @@ const Index = ({
       maxWidth: 550,
     },
     {
-      name: "relativity-simulator",
-      description: "Special Relativity Simulator",
-      links: ["https://github.com/smiilliin/relativity-simulator"],
-      src: "/relativity-simulator",
+      name: "gaussian-simulator",
+      description:
+        "Approximate a discrete distribution to a Gaussian distribution",
+      links: ["https://github.com/smiilliin/gaussian-simulator"],
+      src: "/gaussian-simulator",
       type: "iframe",
     },
     {
