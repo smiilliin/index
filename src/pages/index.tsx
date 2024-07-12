@@ -333,6 +333,15 @@ const Index = ({
       maxWidth: 550,
     },
     {
+      name: "sum-compress",
+      description: "Encrypt and Decrypt with Sum-Compress",
+      links: ["https://github.com/smiilliin/sum-compress"],
+      src: "/sum-compress/file.png",
+      alt: "comparison.png",
+      type: "image",
+      maxWidth: 550,
+    },
+    {
       name: "school-lunch",
       description: "upload school lunch to instagram",
       links: [
