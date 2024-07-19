@@ -278,6 +278,13 @@ const Index = ({
       maxWidth: 550,
     },
     {
+      name: "gradation-wall",
+      description: "Gradation wallpaper",
+      links: ["https://github.com/smiilliin/gradation-wall"],
+      src: "/gradation-wall",
+      type: "iframe",
+    },
+    {
       name: "gaussian-simulator",
       description:
         "Approximate a discrete distribution to a Gaussian distribution",
