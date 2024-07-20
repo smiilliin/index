@@ -1,0 +1,10 @@
+{
+  "welcome": "안녕하세요!",
+  "signin": "로그인",
+  "signup": "회원가입",
+  "keeploggedin": "로그인 유지",
+  "idrequirement": "(4~20자 소문자, 숫자)",
+  "id": "아이디",
+  "password": "비밀번호",
+  "passwordcheck": "비밀번호 확인"
+}

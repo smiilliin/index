@@ -1,0 +1,10 @@
+{
+  "welcome": "Hi there!",
+  "signin": "Sign in",
+  "signup": "Sign up",
+  "keeploggedin": "Keep logged in",
+  "idrequirement": "(4~20 lowercase characters, numbers)",
+  "id": "ID",
+  "password": "PASSWORD",
+  "passwordcheck": "PASSWORD CHECK"
+}
