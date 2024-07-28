@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { CenterContainer } from "../components/containers";
 import { useIntl } from "react-intl";
 import { Checkbox } from "../components/checkbox";
+import ReCAPTCHA from "react-google-recaptcha";
+import CryptoJS from "crypto-js";
+import { IStatusResponse } from "../api";
 
 const Form = styled.form`
   width: 300px;
@@ -63,12 +66,66 @@ const Signup = () => {
     document.title = intl.formatMessage({ id: "signup" });
   }, []);
 
+  const recaptcha = useRef<ReCAPTCHA>(null);
+  const [message, setMessage] = useState("");
+
   return (
     <>
       <Iframe></Iframe>
       <CenterContainer>
-        {/* <Message>{message}</Message> */}
-        <Form spellCheck="false">
+        <p>{message}</p>
+        <Form
+          spellCheck="false"
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            setMessage("");
+
+            const formData = new FormData(event.currentTarget);
+
+            const id = formData.get("id") as string | null;
+            const password = formData.get("password") as string | null;
+            const keepLoggedin = formData.get("keepLoggedin") != null;
+
+            if (password != formData.get("passwordCheck")) {
+              return setMessage(intl.formatMessage({ id: "passwordnotmatch" }));
+            }
+            if (!id) {
+              return setMessage(intl.formatMessage({ id: "inputid" }));
+            }
+            if (!password) {
+              return setMessage(intl.formatMessage({ id: "inputpassword" }));
+            }
+
+            const gResponse = recaptcha.current?.getValue();
+
+            if (!gResponse) {
+              return setMessage(intl.formatMessage({ id: "checkrecaptcha" }));
+            }
+
+            fetch(`https://index-back.${process.env.REACT_APP_URL}/signup`, {
+              credentials: "include",
+              method: "POST",
+              body: JSON.stringify({
+                gResponse: gResponse,
+                id: id,
+                password: CryptoJS.SHA256(password).toString(),
+                keepLoggedin: keepLoggedin,
+              }),
+            })
+              .then((res) => res.json())
+              .then((data: IStatusResponse) => {
+                if (!data.status) {
+                  recaptcha.current?.reset();
+                  return setMessage(intl.formatMessage({ id: data.reason }));
+                }
+                alert("ok");
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          }}
+        >
           <Input
             placeholder={
               intl.formatMessage({ id: "id" }) +
@@ -87,11 +144,11 @@ const Signup = () => {
             name="passwordCheck"
             type="password"
           />
-          {/* <ReCAPTCHA
+          <ReCAPTCHA
             theme="dark"
-            sitekey={recaptchaPublicKey}
+            sitekey="6LfPIBoqAAAAAOJvsfyfCpW7weR32dFJi-F0h7oI"
             ref={recaptcha}
-          ></ReCAPTCHA> */}
+          ></ReCAPTCHA>
           <InputButton value={intl.formatMessage({ id: "signup" })} />
           <Checkbox name="keepLoggedin">
             {intl.formatMessage({ id: "keeploggedin" })}

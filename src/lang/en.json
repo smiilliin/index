@@ -6,5 +6,16 @@
   "idrequirement": "(4~20 lowercase characters, numbers)",
   "id": "ID",
   "password": "PASSWORD",
-  "passwordcheck": "PASSWORD CHECK"
+  "passwordcheck": "PASSWORD CHECK",
+  "checkrecaptcha": "Check I'm not a robot",
+  "passwordnotmatch": "Password check is not matching",
+  "inputid": "Input ID",
+  "inputpassword": "Input Password",
+  "JSON_PARSE": "JSON data is inavlid",
+  "ID_INVALID": "ID is invalid",
+  "PASSWORD_INVALID": "Password is invalid",
+  "ID_USING": "The ID is already in use",
+  "INPUT_INCORRECT": "ID or password is incorrect",
+  "RECAPTCHA_FAILED": "I'm not a robot failed",
+  "UNKNOWN": "Unknown error occurred"
 }

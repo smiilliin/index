@@ -20,6 +20,7 @@ const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 20px;
+  z-index: 1;
 `;
 const Icon = styled.img.attrs(() => {
   return { src: Explode };
