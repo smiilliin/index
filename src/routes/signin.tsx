@@ -1,9 +1,19 @@
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import React, {
+  FormEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { useIntl } from "react-intl";
 import { CenterContainer } from "../components/containers";
 import { Checkbox } from "../components/checkbox";
 import { Link } from "../components/link";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AppContext } from "../App";
+import { IStatusResponse, newAccessToken } from "../api";
+import CryptoJS from "crypto-js";
 
 const Form = styled.form`
   width: 300px;
@@ -61,18 +71,81 @@ const Iframe = styled.iframe.attrs(() => ({
 const Signin = () => {
   const intl = useIntl();
 
+  const context = useContext(AppContext);
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  const navigateNext = useCallback(() => {
+    const next = params.get("next");
+
+    if (!next) {
+      return navigate("/");
+    }
+    const goCurrentDomain = new RegExp(`^\\/`).test(next);
+    const goOtherDomain = new RegExp(
+      `https:\\/\\/[^.]*\\.${process.env.REACT_APP_URL}(?:$|\\/)`
+    ).test(next);
+
+    if (goOtherDomain) {
+      return (window.location.href = next);
+    }
+    if (goCurrentDomain) {
+      return navigate(next);
+    }
+
+    return navigate("/");
+  }, [params]);
+
   useEffect(() => {
     document.title = intl.formatMessage({ id: "signin" });
+    if (context.accessToken) {
+      navigateNext();
+      return;
+    }
   }, []);
 
   const [message, setMessage] = useState<string>();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSubmit = useCallback(
-    (event: FormEvent) => {
+    (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setMessage("");
-      setMessage("ERROR: 그냥 에러");
+
+      setMessage("");
+
+      const formData = new FormData(event.currentTarget);
+
+      const id = formData.get("id") as string | null;
+      const password = formData.get("password") as string | null;
+      const keepLoggedin = formData.get("keepLoggedin") != null;
+
+      if (!id) {
+        return setMessage(intl.formatMessage({ id: "inputid" }));
+      }
+      if (!password) {
+        return setMessage(intl.formatMessage({ id: "inputpassword" }));
+      }
+
+      fetch(`https://index-back.${process.env.REACT_APP_URL}/signin`, {
+        credentials: "include",
+        method: "POST",
+        body: JSON.stringify({
+          id: id,
+          password: CryptoJS.SHA256(password).toString(),
+          keepLoggedin: keepLoggedin,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data: IStatusResponse) => {
+          if (!data.status) {
+            return setMessage(intl.formatMessage({ id: data.reason }));
+          }
+
+          newAccessToken(context).then(() => navigateNext());
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     },
     [setMessage]
   );

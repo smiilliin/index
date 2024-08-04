@@ -6,6 +6,7 @@
   "idrequirement": "(4~20자 소문자, 숫자)",
   "id": "아이디",
   "password": "비밀번호",
+  "logout": "로그아웃",
   "passwordcheck": "비밀번호 확인",
   "checkrecaptcha": "로봇이 아닙니다를 체크하세요",
   "passwordnotmatch": "비밀번호 확인이 일치하지 않습니다",

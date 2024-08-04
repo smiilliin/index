@@ -1,4 +1,10 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { CenterContainer, FlexCenterContainer } from "../components/containers";
 import { Button } from "../components/buttons";
 import styled, { keyframes } from "styled-components";
@@ -10,6 +16,10 @@ import Instagram from "../images/instagram.ico";
 import Velog from "../images/velog.ico";
 import { PageSelecter, RepositoryContainer } from "../repositories";
 import DownArrowImage from "../images/down-arrow.svg";
+import { AppContext } from "../App";
+import { checkAccessToken } from "../api";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const ButtonContainer = styled.div`
   position: fixed;
@@ -20,6 +30,12 @@ const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   gap: 20px;
+  z-index: 1;
+`;
+const ID = styled.span`
+  position: fixed;
+  left: 10px;
+  top: 10px;
   z-index: 1;
 `;
 const Icon = styled.img.attrs(() => {
@@ -79,6 +95,7 @@ const DownArraw = styled(_DownArrow)`
 function Index() {
   const intl = useIntl();
   const [page, setPage] = useState(0);
+  const [id, setID] = useState<string | null>(null);
 
   const repositoriesContainer = useRef<HTMLDivElement>(null);
   const changePage = useCallback(
@@ -89,16 +106,60 @@ function Index() {
     [setPage]
   );
 
+  const context = useContext(AppContext);
+
+  useEffect(() => {
+    document.title = "smiilliin";
+
+    if (context.accessToken) {
+      try {
+        const id = jwtDecode<{ id: string }>(context.accessToken).id;
+        if (!id) return;
+
+        setID(id);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    checkAccessToken(context);
+  }, [context]);
+
+  const navigate = useNavigate();
+
   return (
     <Scroll>
-      <ButtonContainer>
-        <Button onClick={() => (window.location.href = "/signin")}>
-          {intl.formatMessage({ id: "signin" })}
-        </Button>
-        <Button onClick={() => (window.location.href = "/signup")}>
-          {intl.formatMessage({ id: "signup" })}
-        </Button>
-      </ButtonContainer>
+      {id != null ? (
+        <>
+          <ID>{id}</ID>
+          <ButtonContainer>
+            <Button
+              onClick={() => {
+                fetch(
+                  `https://index-back.${process.env.REACT_APP_URL}/logout`,
+                  { method: "POST", credentials: "include" }
+                )
+                  .then((data) => data.json())
+                  .then(() => {
+                    context.setAccessToken(null);
+                    setID(null);
+                  });
+              }}
+            >
+              {intl.formatMessage({ id: "logout" })}
+            </Button>
+          </ButtonContainer>
+        </>
+      ) : (
+        <ButtonContainer>
+          <Button onClick={() => navigate("/signin")}>
+            {intl.formatMessage({ id: "signin" })}
+          </Button>
+          <Button onClick={() => navigate("/signup")}>
+            {intl.formatMessage({ id: "signup" })}
+          </Button>
+        </ButtonContainer>
+      )}
       <CenterContainer style={{ height: "calc(100vh - 50px)" }}>
         <Icon></Icon>
         <h1>👋 SMIILLIIN - Smile</h1>

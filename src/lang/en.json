@@ -6,6 +6,7 @@
   "idrequirement": "(4~20 lowercase characters, numbers)",
   "id": "ID",
   "password": "PASSWORD",
+  "logout": "Logout",
   "passwordcheck": "PASSWORD CHECK",
   "checkrecaptcha": "Check I'm not a robot",
   "passwordnotmatch": "Password check is not matching",

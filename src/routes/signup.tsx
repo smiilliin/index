@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  FormEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { CenterContainer } from "../components/containers";
 import { useIntl } from "react-intl";
@@ -6,6 +13,8 @@ import { Checkbox } from "../components/checkbox";
 import ReCAPTCHA from "react-google-recaptcha";
 import CryptoJS from "crypto-js";
 import { IStatusResponse } from "../api";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AppContext } from "../App";
 
 const Form = styled.form`
   width: 300px;
@@ -61,71 +70,102 @@ const Iframe = styled.iframe.attrs(() => ({
 `;
 const Signup = () => {
   const intl = useIntl();
+  const context = useContext(AppContext);
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  const navigateNext = useCallback(() => {
+    const next = params.get("next");
+
+    if (!next) {
+      return navigate("/");
+    }
+    const goCurrentDomain = new RegExp(`^\\/`).test(next);
+    const goOtherDomain = new RegExp(
+      `https:\\/\\/[^.]*\\.${process.env.REACT_APP_URL}(?:$|\\/)`
+    ).test(next);
+
+    if (goOtherDomain) {
+      return (window.location.href = next);
+    }
+    if (goCurrentDomain) {
+      return navigate(next);
+    }
+
+    return navigate("/");
+  }, [params]);
 
   useEffect(() => {
     document.title = intl.formatMessage({ id: "signup" });
+
+    if (context.accessToken) {
+      navigateNext();
+      return;
+    }
   }, []);
 
   const recaptcha = useRef<ReCAPTCHA>(null);
   const [message, setMessage] = useState("");
+
+  const onSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      setMessage("");
+
+      const formData = new FormData(event.currentTarget);
+
+      const id = formData.get("id") as string | null;
+      const password = formData.get("password") as string | null;
+      const keepLoggedin = formData.get("keepLoggedin") != null;
+
+      if (password != formData.get("passwordCheck")) {
+        return setMessage(intl.formatMessage({ id: "passwordnotmatch" }));
+      }
+      if (!id) {
+        return setMessage(intl.formatMessage({ id: "inputid" }));
+      }
+      if (!password) {
+        return setMessage(intl.formatMessage({ id: "inputpassword" }));
+      }
+
+      const gResponse = recaptcha.current?.getValue();
+
+      if (!gResponse) {
+        return setMessage(intl.formatMessage({ id: "checkrecaptcha" }));
+      }
+
+      fetch(`https://index-back.${process.env.REACT_APP_URL}/signup`, {
+        credentials: "include",
+        method: "POST",
+        body: JSON.stringify({
+          gResponse: gResponse,
+          id: id,
+          password: CryptoJS.SHA256(password).toString(),
+          keepLoggedin: keepLoggedin,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data: IStatusResponse) => {
+          if (!data.status) {
+            recaptcha.current?.reset();
+            return setMessage(intl.formatMessage({ id: data.reason }));
+          }
+          navigateNext();
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
+    [recaptcha, setMessage]
+  );
 
   return (
     <>
       <Iframe></Iframe>
       <CenterContainer>
         <p>{message}</p>
-        <Form
-          spellCheck="false"
-          onSubmit={(event) => {
-            event.preventDefault();
-
-            setMessage("");
-
-            const formData = new FormData(event.currentTarget);
-
-            const id = formData.get("id") as string | null;
-            const password = formData.get("password") as string | null;
-            const keepLoggedin = formData.get("keepLoggedin") != null;
-
-            if (password != formData.get("passwordCheck")) {
-              return setMessage(intl.formatMessage({ id: "passwordnotmatch" }));
-            }
-            if (!id) {
-              return setMessage(intl.formatMessage({ id: "inputid" }));
-            }
-            if (!password) {
-              return setMessage(intl.formatMessage({ id: "inputpassword" }));
-            }
-
-            const gResponse = recaptcha.current?.getValue();
-
-            if (!gResponse) {
-              return setMessage(intl.formatMessage({ id: "checkrecaptcha" }));
-            }
-
-            fetch(`https://index-back.${process.env.REACT_APP_URL}/signup`, {
-              credentials: "include",
-              method: "POST",
-              body: JSON.stringify({
-                gResponse: gResponse,
-                id: id,
-                password: CryptoJS.SHA256(password).toString(),
-                keepLoggedin: keepLoggedin,
-              }),
-            })
-              .then((res) => res.json())
-              .then((data: IStatusResponse) => {
-                if (!data.status) {
-                  recaptcha.current?.reset();
-                  return setMessage(intl.formatMessage({ id: data.reason }));
-                }
-                alert("ok");
-              })
-              .catch((err) => {
-                console.error(err);
-              });
-          }}
-        >
+        <Form spellCheck="false" onSubmit={onSubmit}>
           <Input
             placeholder={
               intl.formatMessage({ id: "id" }) +
