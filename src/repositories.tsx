@@ -24,7 +24,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     name: "domain-coloring",
     description: "A program that shows complex function domain coloring",
     links: ["https://github.com/smiilliin/domain-coloring"],
-    src: "/repositories/domain-coloring",
+    src: "domain-coloring",
     type: "iframe",
   },
   {
@@ -59,7 +59,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     name: "relativity-simulator",
     description: "Special Relativity Simulator",
     links: ["https://github.com/smiilliin/relativity-simulator"],
-    src: "/repositories/relativity-simulator",
+    src: "relativity-simulator",
     type: "iframe",
   },
   {
@@ -111,7 +111,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     name: "gradation-wall",
     description: "Gradation wallpaper",
     links: ["https://github.com/smiilliin/gradation-wall"],
-    src: "/repositories/gradation-wall",
+    src: "gradation-wall",
     type: "iframe",
   },
   {
@@ -119,7 +119,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     description:
       "Approximate a discrete distribution to a Gaussian distribution",
     links: ["https://github.com/smiilliin/gaussian-simulator"],
-    src: "/repositories/gaussian-simulator",
+    src: "gaussian-simulator",
     type: "iframe",
   },
   {
@@ -197,21 +197,21 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
       "https://github.com/smiilliin/forcegame",
       "https://smiilliin.com/forcegame",
     ],
-    src: "/repositories/forcegame",
+    src: "forcegame",
     type: "iframe",
   },
   {
     name: "ballinball",
     description: "simulation of a small ball colliding inside a big ball",
     links: ["https://github.com/smiilliin/ballinball"],
-    src: "/repositories/ballinball",
+    src: "ballinball",
     type: "iframe",
   },
   {
     name: "collision",
     description: "elastic collision simulation",
     links: ["https://github.com/smiilliin/collision"],
-    src: "/repositories/collision",
+    src: "collision",
     type: "iframe",
   },
   {
@@ -219,7 +219,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     description:
       "Life game where you can change the live, death, and tickSpeed values",
     links: ["https://github.com/smiilliin/custom-lifegame"],
-    src: "/repositories/custom-lifegame",
+    src: "custom-lifegame",
     type: "iframe",
   },
   {
@@ -263,7 +263,7 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     name: "balls",
     description: "floating balls on the screen",
     links: ["https://github.com/smiilliin/balls"],
-    src: "/repositories/balls",
+    src: "balls",
     type: "iframe",
   },
   {
@@ -357,7 +357,9 @@ const _RepositoryContainer = forwardRef(
                 ))}
               </div>
               {repository.type == "iframe" ? (
-                <FitIframe src={repository.src}></FitIframe>
+                <FitIframe
+                  src={`https://iframe.${process.env.REACT_APP_URL}/${repository.src}`}
+                ></FitIframe>
               ) : (
                 <FitImage
                   src={repository.src}
