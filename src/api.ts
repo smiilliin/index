@@ -5,7 +5,7 @@ interface IStatusResponse {
 import { jwtDecode } from "jwt-decode";
 import { GlobalCtx } from "./App";
 
-async function newAccessToken({ setAccessToken }: GlobalCtx): Promise<boolean> {
+async function newAccessToken(): Promise<string | null> {
   try {
     const res = await fetch(
       `https://index-back.${process.env.REACT_APP_URL}/access`,
@@ -17,22 +17,22 @@ async function newAccessToken({ setAccessToken }: GlobalCtx): Promise<boolean> {
     const body = await res.json();
 
     if (!body.status) {
-      return false;
+      return null;
     }
-
-    setAccessToken(body.access);
 
     if (body.lifespan < 1000 * 60 * 60 * 24 * 3) {
-      return refreshRefreshToken();
+      if (!refreshRefreshToken()) {
+        return null;
+      }
     }
 
-    return true;
+    return body.access;
   } catch (err) {
     console.error(err);
-    return false;
+    return null;
   }
 }
-async function checkAccessToken(context: GlobalCtx): Promise<boolean> {
+async function checkAccessToken(context: GlobalCtx): Promise<string | null> {
   const { accessToken } = context;
 
   try {
@@ -41,12 +41,15 @@ async function checkAccessToken(context: GlobalCtx): Promise<boolean> {
       jwtDecode<{ expires: number }>(accessToken).expires - Date.now() <
         1000 * 60 * 15
     ) {
-      return newAccessToken(context);
+      const token = await newAccessToken();
+
+      context.setAccessToken(token);
+      return token;
     }
-    return true;
+    return accessToken;
   } catch (err) {
     console.error(err);
-    return false;
+    return null;
   }
 }
 async function refreshRefreshToken(): Promise<boolean> {

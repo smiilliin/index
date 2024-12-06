@@ -47,11 +47,52 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     type: "image",
   },
   {
+    name: "elicompress",
+    description: "Polynomial elimination compression method",
+    links: ["https://github.com/smiilliin/elicompress"],
+    src: "/repositories/elicompress/test4.png",
+    alt: "test4.png",
+    type: "image",
+    maxWidth: 550,
+  },
+  {
     name: "relativity-simulator",
     description: "Special Relativity Simulator",
     links: ["https://github.com/smiilliin/relativity-simulator"],
     src: "/repositories/relativity-simulator",
     type: "iframe",
+  },
+  {
+    name: "fft-draw",
+    description: "Drawing with arrow vectors",
+    links: [
+      "https://github.com/smiilliin/fft-draw",
+      "https://www.instagram.com/p/C_VARS0NbVs/",
+    ],
+    src: "/repositories/fft-draw/gif.gif",
+    alt: "result.gif",
+    type: "image",
+  },
+  {
+    name: "sigma-research",
+    description: "VQVAE & sigma-reduction model",
+    links: ["https://github.com/smiilliin/sigma-research"],
+    src: "/repositories/sigma-research/sigma-research.png",
+    alt: "sigma-research.png",
+    type: "image",
+    maxWidth: 650,
+  },
+  {
+    name: "sigma-app",
+    description: "Music recommendation with sigma-reduction algorithm",
+    links: [
+      "https://github.com/smiilliin/sigma-app",
+      "https://smiilliin.com/sigma-app",
+    ],
+    src: "/repositories/sigma-app/sigma-app.png",
+    alt: "sigma-app.png",
+    type: "image",
+    maxWidth: 650,
   },
   {
     name: "workwatch-learning",
@@ -149,14 +190,14 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     type: "image",
     maxWidth: 550,
   },
-
   {
-    name: "hiragana-learn",
-    description: "Learn hiragana easily",
+    name: "forcegame",
+    description: "Tension force game",
     links: [
-      "https://github.com/smiilliin/index/tree/master/src/routes/hiragana",
+      "https://github.com/smiilliin/forcegame",
+      "https://smiilliin.com/forcegame",
     ],
-    src: "/hiragana",
+    src: "/repositories/forcegame",
     type: "iframe",
   },
   {
@@ -235,13 +276,6 @@ const repositories: (IImageRepository | IIFrameRepository)[] = [
     src: "/repositories/shoot/shoot.png",
     type: "image",
     alt: "shoot.png",
-  },
-  {
-    name: "sf",
-    description: "simple format",
-    links: ["https://github.com/smiilliin/sf"],
-    src: "/sf",
-    type: "iframe",
   },
 ];
 const PageButtonContainer = styled.div`

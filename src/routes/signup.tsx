@@ -12,7 +12,7 @@ import { useIntl } from "react-intl";
 import { Checkbox } from "../components/checkbox";
 import ReCAPTCHA from "react-google-recaptcha";
 import CryptoJS from "crypto-js";
-import { IStatusResponse } from "../api";
+import { checkAccessToken, IStatusResponse, newAccessToken } from "../api";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppContext } from "../App";
 
@@ -39,6 +39,7 @@ const Input = styled.input.attrs(() => ({
   width: 100%;
   height: 40px;
   color: white;
+  padding-left: 5px;
   &::placeholder {
     color: white;
   }
@@ -98,10 +99,12 @@ const Signup = () => {
   useEffect(() => {
     document.title = intl.formatMessage({ id: "signup" });
 
-    if (context.accessToken) {
-      navigateNext();
-      return;
-    }
+    checkAccessToken(context).then((accessToken) => {
+      if (accessToken) {
+        navigateNext();
+        return;
+      }
+    });
   }, []);
 
   const recaptcha = useRef<ReCAPTCHA>(null);
@@ -151,7 +154,11 @@ const Signup = () => {
             recaptcha.current?.reset();
             return setMessage(intl.formatMessage({ id: data.reason }));
           }
-          navigateNext();
+
+          newAccessToken().then((accessToken) => {
+            context.setAccessToken(accessToken);
+            navigateNext();
+          });
         })
         .catch((err) => {
           console.error(err);

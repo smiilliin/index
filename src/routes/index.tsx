@@ -111,25 +111,27 @@ function Index() {
   useEffect(() => {
     document.title = "smiilliin";
 
-    if (context.accessToken) {
-      try {
-        const id = jwtDecode<{ id: string }>(context.accessToken).id;
-        if (!id) return;
+    checkAccessToken(context).then((accessToken) => {
+      if (accessToken) {
+        try {
+          const id = jwtDecode<{ id: string }>(accessToken).id;
+          if (!id) return;
 
-        setID(id);
-      } catch (err) {
-        console.error(err);
+          setID(id);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        setID("");
       }
-    }
-
-    checkAccessToken(context);
+    });
   }, [context]);
 
   const navigate = useNavigate();
 
   return (
     <Scroll>
-      {id != null ? (
+      {id != null && id != "" ? (
         <>
           <ID>{id}</ID>
           <ButtonContainer>
@@ -151,6 +153,9 @@ function Index() {
           </ButtonContainer>
         </>
       ) : (
+        <></>
+      )}
+      {id == "" ? (
         <ButtonContainer>
           <Button onClick={() => navigate("/signin")}>
             {intl.formatMessage({ id: "signin" })}
@@ -159,7 +164,10 @@ function Index() {
             {intl.formatMessage({ id: "signup" })}
           </Button>
         </ButtonContainer>
+      ) : (
+        <></>
       )}
+      {/* {id != undefined ?  : <></>} */}
       <CenterContainer style={{ height: "calc(100vh - 50px)" }}>
         <Icon></Icon>
         <h1>👋 SMIILLIIN - Smile</h1>

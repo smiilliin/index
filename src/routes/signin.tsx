@@ -12,7 +12,7 @@ import { Checkbox } from "../components/checkbox";
 import { Link } from "../components/link";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppContext } from "../App";
-import { IStatusResponse, newAccessToken } from "../api";
+import { checkAccessToken, IStatusResponse, newAccessToken } from "../api";
 import CryptoJS from "crypto-js";
 
 const Form = styled.form`
@@ -38,6 +38,7 @@ const Input = styled.input.attrs(() => ({
   width: 100%;
   height: 40px;
   color: white;
+  padding-left: 5px;
   &::placeholder {
     color: white;
   }
@@ -98,10 +99,13 @@ const Signin = () => {
 
   useEffect(() => {
     document.title = intl.formatMessage({ id: "signin" });
-    if (context.accessToken) {
-      navigateNext();
-      return;
-    }
+
+    checkAccessToken(context).then((accessToken) => {
+      if (accessToken) {
+        navigateNext();
+        return;
+      }
+    });
   }, []);
 
   const [message, setMessage] = useState<string>();
@@ -141,7 +145,10 @@ const Signin = () => {
             return setMessage(intl.formatMessage({ id: data.reason }));
           }
 
-          newAccessToken(context).then(() => navigateNext());
+          newAccessToken().then((accessToken) => {
+            context.setAccessToken(accessToken);
+            navigateNext();
+          });
         })
         .catch((err) => {
           console.error(err);
