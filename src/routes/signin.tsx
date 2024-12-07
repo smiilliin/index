@@ -60,7 +60,7 @@ const InputButton = styled.input.attrs(() => ({ type: "submit" }))`
   }
 `;
 const Iframe = styled.iframe.attrs(() => ({
-  src: "/repositories/gaussian-simulator",
+  src: `https://iframe.${process.env.REACT_APP_URL}/gaussian-simulator`,
 }))`
   width: 100vw;
   height: 100vh;

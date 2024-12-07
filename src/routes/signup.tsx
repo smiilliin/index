@@ -61,7 +61,7 @@ const InputButton = styled.input.attrs(() => ({ type: "submit" }))`
   }
 `;
 const Iframe = styled.iframe.attrs(() => ({
-  src: "/repositories/gradation-wall",
+  src: `https://iframe.${process.env.REACT_APP_URL}/gradation-wall`,
 }))`
   width: 100vw;
   height: 100vh;
